@@ -1063,6 +1063,49 @@ A regressão linear múltipla é utilizada quando existe duas ou mais variáveis
     Y = b_0 + b_1X_1 + \sum_{i = 2}^{n}b_iX_i
 \end{equation}
 
+Aqui, precisamos tomar cuidado: adicionar mais variáveis ao modelo não quer dizer que vamos ter resultados melhores.
+É preciso analisar como os dados se relacionam com a variável analisada bem como se ela já não é descrita por outra.
+Incluir variáveis adicionais reduz o RMSE e aumenta o $R^2$ para os dados de treinamento, logo, esses não são 
+indicados para guiar a escolha do modelo. Para encontrar o modelo ideal (isto é, com a quantidade e variáveis ideiais),
+podemos incluir e excluir sucessivamente as variáveis preditoras para encontrar um modelo que aprimora o $R^2$ ajustado.
+
+Para isso:
+
+\begin{itemize}
+    \item Definimos uma função que retorna um modelo ajustado para determinado conjunto de variáveis;
+    \item Definimos uma função que retorna um score para determinado modelo e conjunto de variáveis.
+\end{itemize}
+
+Em Python, podemos fazer da seguinte forma:
+
+\begin{pythoncode}
+from sklearn.linear_model import LinearRegression
+
+def train_model(variables):
+    if len(variables) == 0:
+        return None 
+    model = LinearRegression()
+    model.fit(X[variables], y)
+    return model 
+
+def score_model(model, variables):
+    n = len(y)
+    p = len(variables)
+    if len(variables) == 0:
+        return 0 
+    r2 = model.score(X[variables], y) 
+    r2_adj = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+    return r2_adj
+
+best_model, best_variables = stepwise_selection(X.columns, train_model, score_model, verbose=True)
+
+print(f'Intercept: {best_model.intercept_:.3f}')
+print('Coeficientes:')
+for name, coef in zip(best_variables, best_model.coef_):
+    print(f' {name}: {coef}')
+\end{pythoncode}
+
+
 \subsection{Validação cruzada}
 
 A validação cruzada é uma técnica utilizada para avaliar a capacidade de generalização
@@ -1112,7 +1155,7 @@ O $R^2$ ajustado corrige o $R^2$ para o número de variáveis preditoras, penali
 modelos que adicionam preditores irrelevantes ou que são redundantes:
 
 \begin{equation}
-    R^2_{ajustado} = 1 - \frac{(1 - R^2)(n - 1)}{n - p - 1}
+    R^2_{adj} = 1 - (1 -R^2)\frac{(n - 1}{n - P - 1}
 \end{equation}
 
 onde $n$ é o número de observações e $p$ o número de preditores.
