@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\input{preambulo}  % <-- importa o preâmbulo
+\input{preambulo} 
 
 \title{data\_science}
 \author{luiz.caixeta}
@@ -891,7 +891,33 @@ Matematicamente, se $p_A$ representa a taxa de conversão da nova versão e $p_B
 
 \subsection{Algoritmo do bandido multibraços (Multi-Armed Bandit - MAB)}
 
-O algoritmo do bandido multibraços é uma alternativa para testagem online que permite a explícita otimização e uma tomada de decisão mais rápida do que a abordagem tradicional ao planejamento de experimentos.
+O algoritmo do bandido multibraçõs (Multi-Armed Bandit) é uma abordagem para experimentação
+online que busca equilibrar exploração (testar alternativas) e exploração do melhor resultado
+(exploit). Diferentemente do teste A/B tradicional (que mantém proporções fixas e alocação durante
+todo o experimento), o MAB permite otimização explícita ao longo do tempo, direcionando progressivamente
+mais usuários para a alternativa que apresenta melhor desempenho. Isso possibilita uma tomada
+de decisão potencialmente mais rápida e com menor perda de oportunidade.
+
+Um dos algoritmos mais simples dessa família é o $\varepsilon$-greedy. Para um teste A/B,
+seu funcionamento pode ser descrito da seguinte forma:
+
+\begin{enumerate}
+\item Gere um número aleatório com distribuição uniforme no intervalo entre 0 e 1.
+\item Se o número estiver no intervalo entre 0 e $\varepsilon$ (onde $\varepsilon \in [0,1]$, geralmente pequeno), execute uma etapa de exploração:
+\begin{itemize}
+\item Escolha aleatoriamente entre as ofertas A e B (por exemplo, com probabilidade 50/50).
+\end{itemize}
+\item Se o número for maior ou igual a $\varepsilon$, execute a etapa de exploração do melhor resultado (exploit):
+\begin{itemize}
+\item Mostre a oferta que apresenta a maior taxa de resposta estimada até o momento.
+\end{itemize}
+\end{enumerate}
+
+Épsilon é um único parâmetro que controle esse algoritmo. Se épsilon é 1, temos um 
+experimento A/B padrão simples (alocação aleatória entre A e B para cada indivíduo). 
+Se épsilon é 0, temos um algoritmo puramente greedy (um que escolhe a melhor opção 
+imediata disponível).
+
 
 
 
