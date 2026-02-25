@@ -1,0 +1,919 @@
+\documentclass{article}
+
+\usepackage{graphicx} 
+\usepackage{amsmath} 
+\usepackage{minted}
+\usepackage{xcolor}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\usepackage[a4paper, margin=3cm]{geometry}
+
+% �� Coloque o hyperref por último
+\usepackage[colorlinks=true, linkcolor=blue]{hyperref}
+
+\newenvironment{pythoncode}
+  {\VerbatimEnvironment
+   \begin{minted}[
+      framesep=6pt,
+      fontsize=\small,
+      linenos,
+      breaklines,
+      bgcolor=gray!10
+   ]{python}}
+  {\end{minted}}
+
+\title{data\_science}
+\author{luiz.caixeta}
+\date{January 2026}
+
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+
+\newpage
+\section{Notação}
+
+\begin{itemize}
+    \item A amostra é um subconjunto de um conjunto maior de dados, a população;
+    \item O tamanho de um conjunto (população) é $N$ e o tamanho da amostra $n$;
+    \item A média de uma população é $\mu$ e a média de uma amostra $\bar{x}$;
+    \item Viés é um erro sistemático;
+    \item Viés de amostragem é uma amostra que não representa a população
+\end{itemize}
+
+O tamanho de um conjunto é $N$ se ele se refere a uma população e $n$ se ele se refere a uma amostra.
+
+\section{Estatística básica}
+
+\subsection{O que é média?}
+
+A média é a soma de todos os valores, dividida pelo número de valores. Assim:
+
+\begin{equation}
+    \text{Média} = \bar{x} = \frac{\displaystyle \sum_{i=1}^{n} x_i}{n}
+\end{equation}
+
+\begin{itemize}
+    \item Exemplo:
+
+    Para um determinado conjunto ${1, 0, 4, 8, 2}$ a média é:
+
+    \begin{equation*}
+        \bar{x} = \frac{1 + 0 + 4 + 8 + 2}{5} = 3
+    \end{equation*}
+\end{itemize}
+
+Para calcular a média, podemos utilizar:
+
+\begin{pythoncode}
+from numpy import numpy as np
+
+conjunto = np.array([1, 0, 4, 7, 2])
+
+np.mean(conjunto)
+\end{pythoncode}
+
+\subsection{O que é média aparada?}
+
+A média aparada é calculada excluindo uma determinada porcentagem dos dados iniciais e finais. A média aparada é calculada para um conjunto ordenado, assim, retirar uma porcentagem dos dados iniciais e dos dados finais pode-se implicar em remover os outliers.
+
+Então, para um conjunto ordenado de N termos ${x_1, x_2, ..., x_{N - 1}, x_N}$ a média aparada é calculada sob a amostra ${x_{p + 1}, x_{p + 2}, ..., x_{N - p - 1}, x_{N - p}}$, que possui uma quantidade de elementos $N - 2p$. Assim:
+
+\begin{equation}
+    \text{Média \ aparada} = \bar{x} = \frac{\displaystyle \sum_{i = p + 1}^{N - p}x_{i}}{N - 2p}
+\end{equation}
+
+Em python, podemos utilizar a função \textbf{trim\_mean} em \textbf{scipy.stats}:
+
+\begin{pythoncode}
+import pandas as pd 
+
+df = pd.read_csv('exemplo.csv')
+
+trim_mean(df['Coluna_exemplo'], 0.1)
+\end{pythoncode}
+
+A função \textbf{trim\_mean()} aceita dois parâmetros, o primeiro recebe os dados que vamos utilizar para calcular a média aparada e o segundo a porcentagem de corte de dados do ínicio e do fim do array.
+
+\subsection{O que é média ponderada?}
+
+Na média ponderada, calculamos a multiplicação de cada item $x_{i}$ do conjunto por um peso $w_{i}$ e dividimos o resultado pela soma dos pesos.
+
+\begin{equation}
+    \text{Média ponderada} = \frac{\displaystyle \sum_{i = 1}^{n} \omega_{i}x_{i}}{\displaystyle \sum_{i = 1}^{n} \omega_{i} }
+\end{equation}
+
+Para calcular utilizando Python, podemos utilizar:
+
+\begin{pythoncode}
+import numpy as np
+import pandas as pd 
+
+df = pd.read_csv('exemplo.csv')
+
+np.average(df['Coluna_exemplo'], weights=df['Segunda_coluna_exemplo'])
+\end{pythoncode}
+
+\subsection{O que é desvio absoluto médio?}
+
+Para um conjunto de dados ${x_1, ..., x_N}$, podemos analisar o quanto os dados estão dispersos em relação ao valor central (que é a média), fazendo 
+
+\begin{equation*}
+    S = x_{i} - \bar{x}
+\end{equation*}
+
+mas isso não diz muito a respeito dos dados pois um desvio $S$ compensa o outro, de forma que $\sum S = 0$. Assim, costuma-se utilizar o \textbf{desvio absoluto médio}, que é calculado com
+
+\begin{equation*}
+    \text{Desvio absoluto médio} = \frac{\displaystyle \sum_{i = 1}^{N}S_{i}}{N} = \frac{\displaystyle \sum_{i = 1}^{N} |x_i - \bar{x}|}{N}
+\end{equation*}
+
+\subsection{O que é variância?}
+
+Variância é o valor esperado do desvio ao quadrado da média de um variável aleatória.
+
+\begin{equation}
+    \text{Variância} = \sigma^{2} =  \frac{\displaystyle \sum_{i = 1}^{n} (x_{i} - \bar{x})^{2}}{n - 1}
+\end{equation}
+
+\textbf{Obs:} A variância não é robusta para valores atípicos por ser baseada no desvio quadrático.
+
+\subsubsection{Mas por que $N - 1$ e não $N$?}
+
+Como dito anteriormente, a variância é o valor esperado do desvio ao quadrado da média de uma variável aleatória. Assim,  sua fórmula empírica é:
+
+\begin{equation*}
+    \frac{1}{n}\sum_{i = 1}^{n}(x_{n} - \bar{x})^{2}
+\end{equation*}
+
+vamos calcular o valor esperado dessa expressão:
+
+\begin{align*}
+    E\left[\frac{1}{n}\sum_{i = 1}^{n}(x_{i} - \bar{x})^{2}\right] &= \frac{1}{n}\sum_{i = 1}^{n}E\left[x_{i}^{2} - 2x_{i}\bar{x} + \bar{x}^{2}\right]  \\
+    &= \frac{1}{n}E\left[\sum_{i = 1}^{n} x_{i}^{2} - 2\bar{x}\underbrace{\sum_{i = 1}^{n}x_{i}}_{= n \bar{x}} + \bar{x}^{2}\underbrace{\sum_{i = 1}^{n}}_{= n}\right] \\
+    &= \frac{1}{n} E \left[\sum_{i = 1}^{n} x_{i}^{2}  -2n\bar{x}^{2} + n\bar{x}^{2}\right] \\
+    &= E\left[\frac{1}{n}\sum_{i = 1}^{n} x_{i}^{2} - \bar{x}^{2}\right]
+\end{align*}
+
+Vamos definir:
+
+\begin{align*}
+    &E[X_i] = \mu \\
+    &\text{Var}(X_i) = \sigma^{2}
+\end{align*}
+
+Substituindo:
+
+\begin{align*}
+    E\left[\frac{1}{n}\sum_{i = 1}^{n} x_{i}^{2} - \bar{x}^{2}\right] &= \sigma^{2} + \mu^{2} - \left(\frac{\sigma^{2}}{n} + \mu^{2}\right) \\
+    &= \sigma^{2} - \frac{\sigma^{2}}{n} = \frac{n - 1}{n}\sigma^2
+\end{align*}
+
+Assim:
+
+\begin{equation*}
+    E\left[\frac{1}{n}\sum_{i = 1}^{n} x_{i}^{2} - \bar{x}^{2}\right] = \textcolor{red}{\frac{n - 1}{n}}\sigma^{2}
+\end{equation*}
+
+Assim, é introduzido um fator de \textbf{correção de bessel} como sendo um fator $n - 1$ para compensar essa diferença.
+
+\subsection{O que é desvio-padrão?}
+
+O desvio-padrão é a raiz quadrada da variância:
+
+\begin{equation}
+    \text{Desvio padrão} = \sigma = \sqrt{\frac{\displaystyle \sum_{i = 1}^{n} (x_{i} - \bar{x})^{2}}{n - 1}}
+\end{equation}
+
+\textbf{Obs:} O desvio-padrão também não é robusto para valores atípicos por ser baseado no desvio quadrático.
+
+\subsubsection{O que é a amplitude?}
+
+A amplitude é a diferença entre o dado de maior valor e o dado de menor valor.
+
+\subsection{O que é moda?}
+
+O moda é o valor que aparece com mais frequência em um conjunto de dados. Em caso de empate, mais de um valor pode representar a moda.
+
+\subsection{Como interpretar percentis e box plot?}
+
+O percentil é a média ponderada:
+
+\begin{equation}
+    \text{Percentil}(P) = (1 - w)x_{(j)} + wx_{(j+1)}
+\end{equation}
+
+Com
+
+\begin{equation}
+    100 * \frac{j}{n} \leq P < 100 * \frac{j + 1}{n}
+\end{equation}
+
+Um box plot é baseado nos \textbf{quartis}:
+
+\begin{align*}
+    &\textbf{Q1} \rightarrow \text{25\% dos dados abaixo} \\
+    &\textbf{Q2} \rightarrow \text{50\%} \\
+    &\textbf{Q3} \rightarrow \text{75\%}
+\end{align*}
+
+A caixa vai de Q1 até Q3. A altura da caixa é o próprio intervalo interquartil:
+
+\begin{equation}
+    IQR = Q3 - Q1
+\end{equation}
+
+Os bigodes do box plot se estendem na parte inferior do Q1 até o menor valor não-outiler, enquanto na parte superior se estendem do Q3 até o maior valor não-outlier.
+
+\subsubsection{Box plot com dados simétricos}
+
+Vamos considerar o conjunto de dados
+
+\begin{equation*}
+    \text{dados\_simetricos} = [4, 5, 6, 5, 4, 6, 5, 5, 6, 4]
+\end{equation*}
+
+O menor valor (4) possui frequência 3, o mesmo que o maior valor (6), com um valor central 5. O box plot desse conjunto de dados é perfeitamente simétrico:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/box_plot_simetrico.jpeg}
+    \caption{Box plot simétrico}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsubsection{Box plot com dados assimetricos para direita e esquerda}
+
+Vamos considerar os conjuntos de dados
+
+\begin{equation*}
+    \text{dados\_assimetricos\_direita} = [2, 3, 3, 4, 3, 2, 3, 4, 10]
+\end{equation*}
+
+\begin{equation*}
+    \text{dados\_assimetricos\_esquerda} = [10, 9, 8, 9, 10, 8, 9, 2]
+\end{equation*}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/box_plot_assimetrico_direita.jpeg}
+    \caption{Box plot assimétrico para direita}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/box_plot_assimetrico_esquerda.jpeg}
+    \caption{Box plot assimétrico para esquerda}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Quando um valor é considerado outlier?}
+
+Um outlier é um valor atípico, seja em uma situação em que o valor é muito maior do que o padrão ou muito menor. É importante que um outlier seja tratado corretamente durante uma análise de dados pois eles podem: 
+
+\begin{itemize}
+    \item Distorcer a média
+    \item Aumentar muito o desvio padrão
+    \item Indicar anomalias 
+    \item Sugerir que a distribuição não é normal
+\end{itemize}
+
+\subsubsection{Como identificar outliers utilizando o método IQR}
+
+Um valor é considerado $x_{i}$ é considerado outlier se:
+
+\begin{equation}
+    x_{i} < Q1 - 1.5 \times IQR
+\end{equation}
+
+ou
+
+\begin{equation}
+    x_{i} > Q3 + 1.5 \times IQR
+\end{equation}
+
+Em Python:
+
+\begin{pythoncode}
+import pandas as pd 
+
+df = pd.read_csv('exemplo.csv')
+
+Q1 = df.quantile(0.25)
+Q3 = df.quantile(0.75)
+
+IQR = Q3 - Q1
+
+limite_inferior = Q1 - 1.5 * IQR
+limite_superior = Q3 + 1.5 * IQR
+
+outliers = df[(df < limite_inferior) | (df > limite_superior)]
+
+print(outliers)
+\end{pythoncode}
+
+\subsubsection{Como identificar outliers utilizando Box plot?}
+
+Em um box plot, os pontos que estiverem acima do bigode supeior e abaixo do bigode inferior são outliers.
+
+\subsubsection{Como identificar outliers utilizadno o método z-score?}
+
+O método \textbf{z-score} identifica outliers medindo \textbf{quantos devios-padrão} um valor está distante da média.
+
+O z-score é definido como:
+
+\begin{equation*}
+    z_i = \frac{x_i - \mu}{\sigma}
+\end{equation*}
+
+onde: 
+
+\begin{itemize}
+    \item $x$ é o valor observado
+    \item $\mu$ é a média 
+    \item $\sigma$ é o desvio padrão
+\end{itemize}
+
+Um valor é considerado outlier se:
+
+\begin{equation}
+    |z| > 3
+\end{equation}
+
+A ideia vem da regra empírica da distribuição normal:
+
+\begin{itemize}
+    \item 68\% dos dados $\rightarrow$ até $1\sigma$
+    \item 95\% dos dados $\rightarrow$ até $2\sigma$
+    \item 99.7\% dos dados $\rightarrow$ até $3\sigma$
+\end{itemize}
+
+Assim, se um dados estiver além da distância $3\sigma$, é considerado raro.
+
+Utilizando Python:
+
+\begin{pythoncode}
+import pandas as pd 
+
+df = pd.read_csv('exemplo.csv')
+
+z_scores = (df - df.mean()) / df.std()
+
+outilers = df[abs(z_scores) > 3]
+
+print(outliers)
+\end{pythoncode}
+
+\subsection{Como interpretar o coeficiente de relação de Pearson?}
+
+Utilizamos o coeficiente de relação de Pearson para avaliar a correlação entre duas variáveis que possuem relação linear. Para calcular o coeficiente de correlação de Pearson, fazemos:
+
+\begin{equation}
+    r = \frac{\displaystyle \sum_{i = 1}^{n}(x_i - \bar{x})(y_i - \bar{y})} {(n - 1)\sigma_x\sigma_y}
+\end{equation}
+
+Assim:
+
+\begin{itemize}
+    \item se $r = + 1$, as variáveis possuem correlação positiva perfeita. uma variável sempre vai ter correlação positiva perfeita consigo, vide desigualdade de Cauchy-Schwarz;
+    \item se $r = - 1$, as variáveis possuem correlação negativa perfeita (inversamente proporcionais, quando uma está no seu máximo a outra está no seu mínimo);
+    \item se $r = 0$, as variáveis não possuem correlação (ao menos não linear).
+\end{itemize}
+
+Utilizando Python, podemos plotar um Heatmap mostrando a relação entre as variáveis:
+
+\begin{pythoncode}
+import matplotlib.pyplot as plt
+import numpy as np
+
+corr = df.corr()
+
+plt.figure()
+plt.imgshow(corr)
+plt.colorbar()
+
+plt.show()
+\end{pythoncode}
+
+\subsubsection{Como provar que o coeficiente de Pearson sempre está entre -1 e +1?}
+
+Na forma vetoria, podemos escrever:
+
+\begin{align*}
+    &\tilde{x}_{i} = x_i - \bar{x} \\
+    &\tilde{y}_{i} = y_i - \bar{y}
+\end{align*}
+
+com
+
+\begin{equation*}
+    \tilde{x} = (\tilde{x}_1, ..., \tilde{x}_n), \ \tilde{y} = (\tilde{y}_1, ..., \tilde{y}_n)
+\end{equation*}
+
+podemos então reescrever o coeficiente de relação de pearson como sendo:
+
+\begin{equation*}
+    r = \frac{\tilde{x}\cdot \tilde{y}}{|\tilde{x}||\tilde{y}|}
+\end{equation*}
+
+Da desigualdade de Cauchy-Schwarz:
+
+\begin{equation*}
+    |\tilde{x} \cdot \tilde{y}| \leq |x||y|
+\end{equation*}
+
+que pode ser reescrita como
+
+\begin{equation*}
+    \frac{|\tilde{x}\cdot \tilde{y}|}{|\tilde{x}||\tilde{y}|} \leq 1
+\end{equation*}
+
+como o lado esquerdo é o próprio r:
+
+\begin{equation*}
+    r \leq 1
+\end{equation*}
+
+\subsection{Como explorar duas ou mais variáveis com gráficos de dispersão?}
+
+Os gráficos de dispersão são amplamente utilizados na análise multivariada para investigar a relação entre duas variáveis quantitativas. Eles permitem identificar padrões, tendências, correlações e possíveis outliers de forma visual e intuitiva.
+
+No entanto, são mais indicados para conjuntos de dados pequenos ou amostras. Em bases muito grandes, a sobreposição excessiva de pontos pode tornar o gráfico poluído e de difícil interpretação (overplotting).
+
+Uma alternativa é a \textbf{compartimentação hexagonal}. Nesse método, em vez de representar cada observação individualmente, o plano cartersiano é dividido em células hexagonais. Os registros são agrupados dentro de cada hexágono e a cor indicaa quantidade de observações naquele compartimento.
+
+Em Python:
+
+\begin{pythoncode}
+ax = df.hexbin(x='Coluna_do_eixo_x', y='Coluna_do_eixo_y', gridsize=Tamanho_do_grid)
+
+plt.show()
+\end{pythoncode}
+
+\section{Amostragem}
+
+\subsection{Viés de amostragem}
+
+Um viés de amostragem ocorre quando a amostra analisada não representa adequadamente a população de interesse, em razão do modo como foi selecionada. Nesse caso, a distorção não é aleatória, mas sistemática: determinados indivíduos têm mais probabilidade de compor a amostra. Como resultado, as conclusões obtidas podem diferir significativamente da realidade e esse erro tende a se repetir sempre que o mesmo método de coleta é utilizado.
+
+Um exemplo pode ser observado nas avalições de companhias aéreas em sites especializados. Os passageiros normalmente registram sua opinião após experiências muito negativas (como atrasos longos, extravio de bagagem ou mau atendimento) ou, menos frequentemente, após experiências excepcionalmente positivas. Enquanto isso, aqueles que tiveram um voo dentro do esperado tendem a não se manifestar. Assim, as avaliações disponíveis podem super-representar situações extremas e não refletir a experiência típica da maioria dos passageiros.
+
+\subsection{Viés de seleção}
+
+O viés de seleção ocorr  quando os dados utilizados em uma análise não são escolhidos de forma independente do resultado que se deseja avaliar, produzindo estimativas sistematicamente distorcidas.
+
+No contexto de Machine Learning, é comum fixarmos um seed para tornar reprodutível a divisão entre treino e teste. Cada escolha de seed gera uma participação diferente dos dados e, portanto, uma estimativa distinta da performance do modelo.
+
+Se testarmos várias seed e selecionarmos aquela que produz o melhor resultado, estaremos escolhendo o máximo (ou mínimo) de um conjunto de variáveis aleatórias. Seja
+
+\begin{equation*}
+    \hat{R}_1, \hat{R}_2, ..., \hat{R}_k
+\end{equation*}
+
+as estimativas de erro obtidas com $k$ participações diferentes. Ao selecionar
+
+\begin{equation*}
+    \hat{R}_{favoravel} = \min_i \hat{R}_i
+\end{equation*}
+
+introduzimos um viés otimista, pois
+
+\begin{equation*}
+    \mathcal{E}[\min(\hat{R_1},..., \hat{R}_k)] \leq \mathcal{E}[\hat{R}_i]
+\end{equation*}
+
+Ou seja, o melhor resultado observado tende, em média, a subestimar o erro real do modelo.
+
+\subsection{Teorema de limite central}
+
+O teorema de limite central diz que as médias extraídas de múltiplas amostras serão semelhantes à uma distribuição normal, mesmo se a população fonte não é normalmente distribuída, contanto que o tamanho da amostra seja grande o bastante e o desvio dos dados da normalidade não seja muito grande.
+
+\subsubsection{Prova do teorema de limite central}
+
+Para variáveis aleatórias i.i.d
+
+\begin{equation*}
+    X_1, X_2, ...
+\end{equation*}
+
+com:
+
+\begin{itemize}
+    \item média $\mu$
+    \item variância $\sigma^2 < \infty$
+\end{itemize}
+
+queremos provar que 
+
+\begin{equation*}
+    \frac{\sqrt{n}}{\sigma}(\bar{X}_n - \mu) \rightarrow \mathcal{N}(0, 1)
+\end{equation*}
+
+A soma das variáveis aleatórias tem:
+
+\begin{align*}
+    &E(X_1, X_2, ..., X_{n - 1}, X_n) = n\mu \\
+    &Var(X_1, X_2, ..., X_{n - 1}, X_n) = n\sigma^2 
+\end{align*}
+
+Normalizamos como:
+
+\begin{equation*}
+    Z_n = \frac{X_1 + ... + X_n - n\mu}{\sqrt{n\sigma^2}} = \displaystyle \sum_{i = 1}^{n}\frac{X_i - \mu}{\sqrt{n\sigma^2}}
+\end{equation*}
+
+onde definimos
+
+\begin{equation*}
+    Y_i = \frac{X_i - \mu}{\sigma}
+\end{equation*}
+
+com
+
+\begin{align*}
+    &E(Y_i) = 0 \\
+    &Var(Y_i) = 0
+\end{align*}
+
+Logo:
+
+\begin{equation*}
+    Z_n = \sum_{i = 1}^{n}\frac{1}{\sqrt{n}}Y_i
+\end{equation*}
+
+Aplicando a função característica em $Z_n$:
+
+\begin{equation*}
+    \varphi Z_n(t) = \prod_{i = 1}^{n}\varphi Y_i\left(\frac{t}{\sqrt{n}}\right) = \left[\varphi Y_i\left( \frac{t}{\sqrt{n}}\right)\right]^n
+\end{equation*}
+
+Utilizando expansão de Taylor:
+
+\begin{equation*}
+    \varphi Y_i\left(\frac{t}{\sqrt{n}}\right) = 1 - \frac{t^2}{2n} + \mathcal{o}\left(\frac{t^2}{n}\right), \  \left(\frac{t}{\sqrt{n}}\right) \rightarrow 0
+\end{equation*}
+
+Assim
+
+\begin{equation*}
+    \varphi Z_n(t) = \left(1 - \frac{t^2}{2n} + \mathcal{o}\left(\frac{t^2}{n}\right)\right)^n \rightarrow e^{-\frac{-1}{2}t^2}, \ n \rightarrow \infty
+\end{equation*}
+
+A função característica da normal padrão é:
+
+\begin{equation*}
+    \varphi(t) = e^{-\frac{1}{2}t^2}
+\end{equation*}
+
+Então
+
+\begin{equation*}
+    Z_n \xrightarrow[]{d} \mathcal{N}(0, 1)
+\end{equation*}
+
+\subsection{Bootstrap}
+
+O bootstrap é uma técnica de reamostragem que consiste em gerar múltiplas amostras a partir de um conjunto de dados original, selecionando observações aleatoriamente com reposição. Cada amostra bootstrap possui o mesmo tamanho da amostra original, mas pode conter observações repetidas e omitir outras.
+
+Ao repetir um processo muitas vezes, obtemos uma distribuição empírica da estatística de interesse (como média, mediana, coeficientes de um modelo ou métricas de desempenho). Essa distribuição permite estimar o erro padrão, intervalos de confianças e víes do estimador, sem depender de suposições fortes sobre a distribuição dos dados.
+
+O algoritmo para uma reamostragem bootstrap da média para uma amostra de tamanho n é:
+
+\begin{enumerate}
+    \item Extraia um valor de amostra, registre e reponha;
+    \item Repita n vezes;
+    \item Registre a média dos n valores reamostrados;
+    \item Repita o passo 1 e 3 R vezes;
+    \item Use os R resultados para: calcular seu desvio-padrão (isso estima o erro-padrão da média da amostra), produzir um histograma ou um gráfico de caixas e encontrar um intervalo de confiança.
+\end{enumerate}
+
+O número R de iterações do bootstrap é definido de forma arbitrárias, quanto mais iterações são feitas, mais precisa é a estimativa do erro-padrão ou intervalo de confiança.
+
+Em Python, podemos utilizar o método \textbf{resample}, da biblioteca \textbf{scikit-learn}:
+
+\begin{pythoncode}
+results = []
+
+for nrepeat in range(1000):
+    sample = resample(loans_income)
+    results.append(sample.median())
+
+results = pd.Series(results)
+print('Bootstrap Statistics:')
+print(f'original: {loans_income.median()}')
+print(f'bias: {results.mean() - loans_income.median()}')
+print(f'std.error: {results.std()}')
+\end{pythoncode}
+
+\subsubsection{O que é bagging?}
+
+Bagging é uma técnica de amostragem que melhora a estabilidade de modelos de machine learning reduzindo a variância. A intuição matemática é que se temos estimadores independentes:
+
+\begin{equation*}
+    Var\left(\frac{1}{B} \sum_{b =1}^{B} f_b(x)\right) = \frac{1}{B^2}\sum Var(f_b(x))
+\end{equation*}
+
+Assim, o passo a passo é:
+
+\begin{enumerate}
+    \item Criar amostras bootstrap: gerar várias amostras com reposição, cada uma com tamanho n
+    \item Treinar modelos separados: treinamos um modelo em cada amostra. Por exemplo: treinamos n árvores de decisão, cada uma treinada em um bootstrap diferente
+    \item Agregamos previsões
+\end{enumerate}
+
+\section{Distribuições}
+
+\subsection{Distribuição normal (distribuição gaussiana)}
+
+A distribuição normal é um modelo probabilístico contínuo que descreve fenômenos cuja maioria dos valores se concentra ao redor da média, com simetria perfeita.
+
+A função densidade é 
+
+\begin{equation}
+    f(x) = \frac{1}{\sigma \sqrt{2\pi}}exp\left(-\frac{(x - \mu)^2}{2\sigma^2} \right)
+\end{equation}
+
+Por conter simetria perfeita:
+
+\begin{itemize}
+    \item média = mediana = moda
+    \item 68\% dos dados estão em $\mu \pm \sigma$
+    \item 95\% dos dados estão em $\mu \pm 2\sigma$
+    \item 99.7\% dos dados estão em $\mu \pm 3\sigma$
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/distribuicao_gaussiana.jpeg}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Distribuicao t de Student}
+
+A \textbf{distribuição t de Student} é semelhante à distribuição normal, porém apresenta \textbf{caudas mais espessas}, o que significa maior probabilidade de valores extremos. Essa característica reflete a incerteza adicional introduzida quando o desvio padrão populacional é desconhecido e precisa ser estimado a partir da amostra.
+
+A distribuição t não é única, mas sim uma família de distribuições, que variam de acordo com os graus de liberdade. Quanto maior o tamanho da amostra, maiores são os graus de liberdade e mais a distribuição t se aproxima da distribuição normal. 
+
+A utilização da distribuição t para modelar o comportamento de uma estatística amostral (como a média) pressupõe que essa estatística tenha distribuição aproximadamente normal, fato que pode ser satisfeito pelo teorema do limite central.
+
+A funcao de densidade de probabilidade é dada por:
+
+\begin{equation}
+    f(t) = \frac{\Gamma\left(\frac{v + 1}{2}\right)}{\sqrt{\pi v}\Gamma\left(\frac{v}{2}\right)}\left(1 + \frac{t^2}{v}\right)^{-\left(\frac{v + 1}{2}\right)}
+\end{equation}
+
+onde $v$ é o número de graus de liberdade.
+
+
+\subsubsection{O que acontece quando o número de graus de liberdade tende ao infinito?}
+
+Vamos dividir a expressão de $f(t)$ em duas partes:
+
+\begin{equation*}
+    f(t) = \underbrace{\frac{\Gamma\left(\frac{v + 1}{2}\right)}{\sqrt{\pi v}\Gamma\left(\frac{v}{2}\right)}}_{ =A}\underbrace{\left(1 + \frac{t^2}{v}\right)^{-\left(\frac{v + 1}{2}\right)}}_{= B}
+\end{equation*}
+
+Primeiro, vamos avaliar a parte $A$:
+
+\begin{equation*}
+    A = \frac{\Gamma \left(\frac{v + 1}{2}\right)}{\sqrt{\pi v}\Gamma\left(\frac{v}{2}\right)}
+\end{equation*}
+
+Usando a aproximação de Stirling para a função Gamma:
+
+\begin{equation*}
+    \Gamma(z) \sim \sqrt{2\pi}z^{z - \frac{1}{2}}e^{-z}, \ \text{quando} \ z \rightarrow \infty
+\end{equation*}
+
+Aplicando na razão $A$:
+
+\begin{equation*}
+    \frac{\Gamma\left(\frac{v + 1}{2}\right)}{\Gamma \left(\frac{v}{2}\right)} \sim \left(\frac{v}{2}\right)^{1/2}
+\end{equation*}
+
+Então:
+
+\begin{equation*}
+    A \sim \frac{\sqrt{v/2}}{\sqrt{\pi v}} = \frac{1}{\sqrt{2\pi}}
+\end{equation*}
+
+Agora, vamos avaliar a parte exponencial $B$:
+
+\begin{equation*}
+    B = \left(1 + \frac{t^2}{v}\right) = exp\left[-\frac{v + 1}{2}\ln \left(1 + \frac{t^2}{v}\right)\right]
+\end{equation*}
+
+Quando $v \rightarrow \infty$, temos que $\frac{t^2}{v} \rightarrow 0$. Assim, utilizando expansão de Taylor:
+
+\begin{equation*}
+    \ln\left(1 + \frac{t^2}{v}\right) \approx \frac{t^2}{v}
+\end{equation*}
+
+substituindo:
+
+\begin{equation*}
+    B \approx exp \left[- \frac{v + 1}{2} \cdot \frac{t^2}{v}\right] = exp \left[- \frac{t^2}{2} \cdot \frac{v + 1}{v}\right] = exp \left[-\frac{t^2}{2}\right]
+\end{equation*} 
+
+Então:
+
+\begin{equation*}
+    \lim_{v \rightarrow \infty} f(t) = \lim_{v \rightarrow \infty} \frac{\Gamma\left(\frac{v + 1}{2}\right)}{\sqrt{\pi v}\Gamma\left(\frac{v}{2}\right)}\left(1 + \frac{t^2}{v}\right)^{-\left(\frac{v + 1}{2}\right)} = \frac{1}{\sqrt{2\pi}}e^{-\frac{t^2}{2}} = \mathcal{N}(0, 1)
+\end{equation*}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/student_e_normal.jpeg}
+\end{figure}
+
+\subsubsection{Gráfico QQ}
+
+O gráfico QQ é uma ferramenta gráfica utilizada para comparar duas distribuições de probabilidade, plotando seus quantis um contra o outro. Ele é usado para responder à pergunta: "meus dados se comportam como a distribuição que estou assumindo?"
+
+\begin{itemize}
+    \item \textbf{Eixo y}: os z-scores dos dados (seus valores transforamdos para terem média 0 e desvio padrão 1)
+    \item \textbf{Eixo x}: os quantis teóricos da distribuição normal padrão (que são os z-scores esperados)
+\end{itemize}
+
+Para construção:
+
+\vspace{0.25cm}
+
+\textbf{Passo 1: calcular os z-scores dos dados} 
+
+\begin{equation*}
+    Z_{observado} = \frac{x - \bar{x}}{s}
+\end{equation*}
+
+onde 
+
+\begin{itemize}
+    \item $x$ é o valor original 
+    \item $\bar{x}$ é a média dos dados 
+    \item $s$ é o desvio padrão dos dados 
+\end{itemize}
+
+Se as duas distribuições sendo comparadas são semelhantes, os pontos no gráfico QQ vão cair aproximadamente ao longo de uma linha reta (geralmente a linha $y = x$, ou a linha de regressão dos pontos).
+
+\vspace{0.25cm}
+
+\textbf{Passo 2: ordenar os z-scores}
+
+Colocamos os z-scores calculados em ordem crescente.
+
+\vspace{0.25cm}
+
+\textbf{Passo 3: calcular os quantis teóricos}
+
+Para cada posição dos dados ordenados, calculamos qual seria o z-score esperado em uma distribuição normal perfeita.
+
+\vspace{0.25cm}
+
+\textbf{Passo 4: plotar}
+
+Cada ponto no gráfico de dispersão é um par, com a cordenada x o z-score teórico (quantil normal esperado) e a coordeanda y o z-score observado (dado padronizado).
+
+Podemos gerar uma figura de um gráfico QQ para uma amostra de valores aleatoriamente gerados de uma distribuição normal. Como os valores são amostras da própria distribuição normal, eles devem seguir a reta $y = x$. Para isso:
+
+\begin{pythoncode}
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8,6))
+norm_sample = stats.norm.rvs(size=1000)
+
+stats.probplot(norm_sample, plot=ax)
+plt.tight_layout()
+plt.show()
+\end{pythoncode}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/rafico_QQ_distribuicao_normal_padrao.jpeg}
+\end{figure}
+
+\section{Experimentos estatísticos}
+
+\subsection{Teste de hipótese}
+
+Um teste de hipótese (ou teste de significância) é uma ferramenta estatística inferencial utilizada para avaliar se um efeito observado nos dados pode ser atribuído ao acaso ou se há evidências suficientes para considerar que ele reflete um fenômeno real na população.
+
+Assim, o teste de hipótese ajuda a decidir entre duas explicações possíveis:
+
+\begin{enumerate}
+    \item o resultado ocorreu devido à variabilidade aleatória natural dos dados;
+    \item  o resultado é estatisticamente significativo e dificilmente seria observado apenas pelo acaso.
+\end{enumerate}
+
+Para isso:
+
+\begin{itemize}
+    \item Hipótese nula ($H_0$): é a afirmação inicial assumida como verdadeira até que haja evidências contrárias. Geralmente representa a ausência de efeito, diferença ou associação.
+    \item Hipótese alternativa ($H_1$): é a afirmação que contradiz a hipótese nula. Representa a presença de efeito, diferença ou associação.
+\end{itemize}
+
+\subsection{Reamostragem}
+
+A Reamostragem consiste em amostrar repetidamente a partir dos dados observados com o objetivo de avaliar a variabilidade aleatória de uma estatística. Para isso, podemos utilizar o processo \textit{bootstrap} e \textit{testes de permutação}. O \textit{bootstrap} é utilizado para avaliar a confiabilidade de uma estimativa, enquanto os testes de permutação são usados para testar hipóteses, geralmente envolvendo dois ou mais grupos.
+
+\subsubsection{Teste de permutação aleatória}
+
+No teste de permutação, queremos provar a hipótese nula de que os tratamentos aos quais os grupos foram expostos não produzem diferença sistemática na variável de interesse. Sob hipótese nula, as observações são provenientes da mesma distribuição e as etiquetas do grupos são irrelevantes. Para executar o teste de permutação:
+
+\begin{enumerate}
+    \item Combinar os resultados dos diferentes grupos em um único conjuto de dados.
+    \item Embaralhar os dados combinados.
+    \item Divdir os dados embaralhados em dois grupos, preservando o tamanho dos grupos originais.
+    \item Calcular a estimativa de interesse (por exemplo, diferença de médias) para a nova configuração.
+    \item Repetir os passos K vezes para  construir a distribuição de permutação da estatística desejada.
+\end{enumerate}
+
+A comparação entre a estatística observada e a distribuição de permutação permite calcular o \textit{p-valor}. Se a diferença observada estiver situada em uma região central da distribuição permutada, concluímos que o resultado é compatível com a variabilidade aleatória esperada sob a hipótese nula. Se a diferença observada estiver localizada nas caudas da distribuição de permutação, isso indica que tal resultado seria improvável de ocorrer apenas pelo acaso, fornecendo evidência contra a hipótese nula.
+
+\subsection{Nível de significância ($\alpha$)}
+
+O nível de significância $\alpha$ é a probabilidade máxima que você aceita cometer um erro tipo I. Em geral, é escolhido $\alpha = 0.05$, o que equivale dizer que aceitamos o risco de 5\% de cometer um erro do tipo I.
+
+\subsection{Significância estatística}
+
+Um resultado é considerado estatisticamente significativo quando seria improvável de ocorrer caso a hipótese nula fosse verdadeira. Dizemos que um resultado é estatisticamente significado quando o p-valor associado ao teste é menor que um nível de significância previamente estabelecido ($\alpha$).
+
+\subsection{p-valor}
+
+Dado um modelo que representa a hipótese nula, o p-valor é a probabilidade de observar uma estatística de teste tão extrema quanto, ou mais extrema que, aquela obtida nos dados, assumindo que a hipótese nula seja verdadeira. 
+
+Formalmente, se $T$ é a estatística de teste e $t_{obs}$ é o valor observado, o p-valor é dado por:
+
+\begin{equation}
+    p = P(T \ge t_{obs} \mid H_0)
+\end{equation}
+
+\begin{enumerate}
+    \item Se $p \leq \alpha \rightarrow$ rejeito $H_0$
+    \item Se $p > alpha \rightarrow$ não rejeito $H_0$
+\end{enumerate}
+
+\subsection{Erro do Tipo I ($\alpha$)}
+
+O erro do tipo I acontece quando rejeitamos a hipótese nula quando ela é verdadeira. A probabilidade de cometer esse erro é definida previamente pelo \textbf{nível de significância ($\alpha$)}. 
+
+Por exemplo, ao realizar um teste A/B com o objetivo de aumentar a taxa de conversão de leas, formulamos a hipótese nula, como a afirmação de que a nova implementação não altera a taxa de conversão em relação à versão original.
+
+Se, com base nos resultados do teste, rejeitarmos essa hipótese e concluirmos que a nova versão melhora a conversão quando, na verdade, a diferença observada foi apenas fruto da variabilidade aleatória, estaremos cometendo um erro do tipo I (um falso positivo).
+
+\subsection{Erro do Tipo II ($\beta$)}
+
+O erro do tipo II ocorre quando aceitamos a hipótese nula mesmo ela sendo falsa. 
+
+A probabilidade de cometer esse erro é representada por $\beta$, e está diretamente realcionada ao poder estatístico do teste, definido por $1 - \beta$, que mede a capacidade de identificar um efeito real quando ele de fato está presente.
+
+No contexto de um teste A/B para aumentar a taxa de conversão de leads, a hipótese nula afirma que a nova implementação não altera a taxa de conversão. Suponha, porém, que a nova versão realmente aumente a conversão.
+
+Se, ao final do experimento, não rejeitarmos a hipótese nula (concluindo que não há diferença significativa), estaremos cometendo um erro do tipo II (falso negativo). Nesse caso, uma melhoria real deixaria de ser implementada por falta de evidência estatística suficiente.
+
+\subsection{ANOVA}
+
+Suponha que, em vez de um teste A/B, desejemos comparar quatro grupos (A/B/C/D), cada um contendo observações numéricas. O procedimento estatístico utilizado para verificar se existe diferença estatisticamente significativa entre as médias de múltiplos grupos é chamado de ANOVA.
+
+A ideia da ANOVA é comparar a variabilidade entre os grupos com a variabilidade dentro dos grupos. Se a variabilidade entre as médias for grande o suficiente em relação à variabilidade interna, temos evidência contra a hipótese nula de que todas as médias são iguais. 
+
+\begin{enumerate}
+    \item Reúna todas as observações dos quatro grupos em um único conjunto;
+    \item Embaralhe os valores aleatoriamente;
+    \item Divida-os em quatro grupos com o mesmo tamanho original (por exemplo, cinco observações por grupo);
+    \item Calcule a média de cada grupo reamostrado;
+    \item Calcule a variância entre as médias desses quatro grupos;
+    \item Repita os passos 2 a 5 K vezes.
+\end{enumerate}
+
+Ao final, compare a variância observada nos dados reais com as variâncias obtidas nas reamostragens. A proporção de vezes que a variância reamostrada é maior ou igual à variância observada corresponde ao p-valor. Se essa proporção for pequena (menor que $\alpha$), isso indica que a diferença observada entre as médias dificilmente teria ocorrido apenas por aleatoriedade, fornecendo evidência contra a hipótese nula de igualdade das médias.
+
+\subsection{Consideração quanto a modelos preditivos}
+
+Para a modelagem preditiva, o risco de obter um modelo ilusório cuja eficácia aparente é mais um produto do acaso é mitigado pela validação cruzada e pelo uso de uma amostra de validação.
+
+
+\subsubsection{Exemplo}
+
+Por exemplo, em um site de e-commerce, podemos avaliar se uma alteração na interface (UI/UX) aumenta a taxa de conversão de leads em comparação com a versão original. Para isso, realizamos um \textbf{teste A/B}, no qual os usuários são dividios aleatoriamente em dois grupos: o grupo A (tratamento), que recebe a nova versão da UI/UX e o grupo b (controle), que permanece com a versão original. A formulação das hipóteses é feita da seguinte forma:
+
+\begin{itemize}
+    \item $H_0$: a nova UI/UX não altera a taxa de conversão. Ou seja, a taxa de conversão do grupo A é igual à do grupo B.
+    \item $H_1$: a nova UI/UX aumenta a taxa de conversão. Ou seja, a taxa de conversão do grupo A é maior que a do grupo B.
+\end{itemize}
+
+Matematicamente, se $p_A$ representa a taxa de conversão da nova versão e $p_B$ a taxa de versão original, temos:
+
+\begin{align*}
+    &H_0: p_A = p_B \\
+    &H_1: p_A > p_B
+\end{align*}
+
+
+
+
+\end{document}
