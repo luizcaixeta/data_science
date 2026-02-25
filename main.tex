@@ -946,8 +946,8 @@ from statsmodels.stats.power import NormalIndPower
 from statsmodels.stats.proportion import proportion_effectsize 
 
 # taxas esperadas
-p1 = 0.10 # taxa atual de conversão (1%)
-p2 = 0.12 # nova meta de conversão (12%)
+p1 = 0.10 # taxa atual de conversao (1\%)
+p2 = 0.12 # nova meta de conversao (12\%)
 
 effect_size = proportion_effectsize(p1, p2)
 
@@ -960,7 +960,7 @@ n = analysis.solve_power(
     effect_size=effect_size,
     alpha=alpha,
     power=power,
-    alternativa='two-sided'
+    alternative='two-sided'
 )
 
 print(f"Tamanho da amostra por grupo: {round(n)}")
@@ -1016,7 +1016,7 @@ Após estimar os coeficientes $\hat{b}_0$ e $\hat{b}_1$, podemos calcular os
 valores ajustados (ou preditos) pela reta:
 
 \begin{equation}
-    \hat{Y}_i = \hat{b}_0 _ \hat{b}_1X_i
+    \hat{Y}_i = \hat{b}_0 - \hat{b}_1X_i
 \end{equation}
 
 O resíduo de cada observação é a diferença etnre o valor observado e o valor ajustado:
@@ -1028,10 +1028,10 @@ O resíduo de cada observação é a diferença etnre o valor observado e o valo
 Em Python, podemos obter os valores \textit{ftted} e os valores residuals:
 
 \begin{pythoncode}
-# valores ajustados (previsões do modelo)
+# valores ajustados (previsoes do modelo)
 fitted = model.predict(lung[predictors])
 
-# resíduos (diferença entre valores observados e ajustados)
+# residuos (diferenca entre valores observados e ajustados)
 residuals = lung[outcome] - fitted
 \end{pythoncode}
 
