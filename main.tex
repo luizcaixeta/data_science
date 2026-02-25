@@ -1,26 +1,6 @@
 \documentclass{article}
 
-\usepackage{graphicx} 
-\usepackage{amsmath} 
-\usepackage{minted}
-\usepackage{xcolor}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{2pt}
-\usepackage[a4paper, margin=3cm]{geometry}
-
-% �� Coloque o hyperref por último
-\usepackage[colorlinks=true, linkcolor=blue]{hyperref}
-
-\newenvironment{pythoncode}
-  {\VerbatimEnvironment
-   \begin{minted}[
-      framesep=6pt,
-      fontsize=\small,
-      linenos,
-      breaklines,
-      bgcolor=gray!10
-   ]{python}}
-  {\end{minted}}
+\input{preambulo}  % <-- importa o preâmbulo
 
 \title{data\_science}
 \author{luiz.caixeta}
@@ -140,7 +120,7 @@ Variância é o valor esperado do desvio ao quadrado da média de um variável a
 
 \textbf{Obs:} A variância não é robusta para valores atípicos por ser baseada no desvio quadrático.
 
-\subsubsection{Mas por que $N - 1$ e não $N$?}
+\subsubsection{Mas por que \texorpdfstring{$N - 1$}{N - 1} e não \texorpdfstring{$N$}{N}?}
 
 Como dito anteriormente, a variância é o valor esperado do desvio ao quadrado da média de uma variável aleatória. Assim,  sua fórmula empírica é:
 
@@ -237,11 +217,10 @@ Vamos considerar o conjunto de dados
 
 O menor valor (4) possui frequência 3, o mesmo que o maior valor (6), com um valor central 5. O box plot desse conjunto de dados é perfeitamente simétrico:
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/box_plot_simetrico.jpeg}
     \caption{Box plot simétrico}
-    \label{fig:placeholder}
 \end{figure}
 
 \subsubsection{Box plot com dados assimetricos para direita e esquerda}
@@ -256,18 +235,16 @@ Vamos considerar os conjuntos de dados
     \text{dados\_assimetricos\_esquerda} = [10, 9, 8, 9, 10, 8, 9, 2]
 \end{equation*}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/box_plot_assimetrico_direita.jpeg}
     \caption{Box plot assimétrico para direita}
-    \label{fig:placeholder}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/box_plot_assimetrico_esquerda.jpeg}
     \caption{Box plot assimétrico para esquerda}
-    \label{fig:placeholder}
 \end{figure}
 
 \subsection{Quando um valor é considerado outlier?}
@@ -648,7 +625,6 @@ Por conter simetria perfeita:
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\linewidth]{images/distribuicao_gaussiana.jpeg}
-    \label{fig:placeholder}
 \end{figure}
 
 \subsection{Distribuicao t de Student}
@@ -834,7 +810,7 @@ No teste de permutação, queremos provar a hipótese nula de que os tratamentos
 
 A comparação entre a estatística observada e a distribuição de permutação permite calcular o \textit{p-valor}. Se a diferença observada estiver situada em uma região central da distribuição permutada, concluímos que o resultado é compatível com a variabilidade aleatória esperada sob a hipótese nula. Se a diferença observada estiver localizada nas caudas da distribuição de permutação, isso indica que tal resultado seria improvável de ocorrer apenas pelo acaso, fornecendo evidência contra a hipótese nula.
 
-\subsection{Nível de significância ($\alpha$)}
+\subsection{Nível de significância \texorpdfstring{$\alpha$}{α}}
 
 O nível de significância $\alpha$ é a probabilidade máxima que você aceita cometer um erro tipo I. Em geral, é escolhido $\alpha = 0.05$, o que equivale dizer que aceitamos o risco de 5\% de cometer um erro do tipo I.
 
@@ -857,7 +833,7 @@ Formalmente, se $T$ é a estatística de teste e $t_{obs}$ é o valor observado,
     \item Se $p > alpha \rightarrow$ não rejeito $H_0$
 \end{enumerate}
 
-\subsection{Erro do Tipo I ($\alpha$)}
+\subsection{Erro do Tipo I \texorpdfstring{($\alpha$)}{(α)}}
 
 O erro do tipo I acontece quando rejeitamos a hipótese nula quando ela é verdadeira. A probabilidade de cometer esse erro é definida previamente pelo \textbf{nível de significância ($\alpha$)}. 
 
@@ -865,7 +841,7 @@ Por exemplo, ao realizar um teste A/B com o objetivo de aumentar a taxa de conve
 
 Se, com base nos resultados do teste, rejeitarmos essa hipótese e concluirmos que a nova versão melhora a conversão quando, na verdade, a diferença observada foi apenas fruto da variabilidade aleatória, estaremos cometendo um erro do tipo I (um falso positivo).
 
-\subsection{Erro do Tipo II ($\beta$)}
+\subsection{Erro do Tipo II \texorpdfstring{($\beta$)}{β}}
 
 O erro do tipo II ocorre quando aceitamos a hipótese nula mesmo ela sendo falsa. 
 

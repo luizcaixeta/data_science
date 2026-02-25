@@ -1,18 +1,19 @@
-name: Compile LaTeX
+name: Build LaTeX PDF
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Compile
+      - name: Compile LaTeX
         uses: xu-cheng/latex-action@v3
         with:
           root_file: main.tex
@@ -20,5 +21,5 @@ jobs:
       - name: Upload PDF
         uses: actions/upload-artifact@v4
         with:
-          name: pdf
+          name: PDF
           path: main.pdf

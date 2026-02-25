@@ -1,0 +1,55 @@
+% ========================
+% PACOTES
+% ========================
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage[a4paper, margin=3cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue]{hyperref}
+\usepackage{bookmark}
+\usepackage{listings}
+\usepackage{float}
+
+% ========================
+% CONFIGURAÇÕES GERAIS
+% ========================
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+
+% ========================
+% CORES DO CÓDIGO
+% ========================
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegray}{RGB}{100,100,100}
+\definecolor{codeblue}{RGB}{0,0,180}
+\definecolor{codegreen}{RGB}{0,120,0}
+
+% ========================
+% ESTILO PYTHON
+% ========================
+
+\lstdefinestyle{mypython}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\lstnewenvironment{pythoncode}
+{
+  \lstset{style=mypython}
+}
+{}
