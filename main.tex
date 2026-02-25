@@ -1063,4 +1063,118 @@ A regressão linear múltipla é utilizada quando existe duas ou mais variáveis
     Y = b_0 + b_1X_1 + \sum_{i = 2}^{n}b_iX_i
 \end{equation}
 
+\subsection{Validação cruzada}
+
+A validação cruzada é uma técnica utilizada para avaliar a capacidade de generalização
+do modelo, ou seja, quão bem ele performa em dados que não foram utilizados durante o 
+treinamento. Essa técnica é especialmente útil quando o conjunto de dados é limitado,
+permitindo uma estimativa mais confiável do desempenho do modelo.
+
+Para isso, podemos utilizar a validação cruzada $k$-fold, dividindo o conjunto de dados
+em $k$ subconjuntos (folds) de tamanho aproximadamente igual. O modelo é treinado $k$ vezes,
+cada vez utilizando $k -1$ folds para treinamento e o fold restante para teste. A performance
+final é a média das métricas obtidas em cada iteração.
+
+\begin{algorithm}[h!]
+\caption{Validação Cruzada $k$-Fold}
+\begin{algorithmic}[1]
+\Require Conjunto de dados $D$, número de folds $k$
+\Ensure Estimativa de desempenho do modelo
+\State Divida $D$ em $k$ folds de tamanho aproximadamente igual: $D_1, D_2, \dots, D_k$
+\For{$i = 1$ to $k$}
+    \State $D_{\text{treino}} = D \setminus D_i$ \Comment{todos os folds exceto o $i$-ésimo}
+    \State $D_{\text{teste}} = D_i$ \Comment{o $i$-ésimo fold}
+    \State Treine o modelo em $D_{\text{treino}}$
+    \State Avalie o modelo em $D_{\text{teste}}$, registrando a métrica de interesse
+\EndFor
+\State Calcule a média das métricas registradas para obter a estimativa final
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Métricas de avaliação}
+
+Para avaliar a qualidade de um modelo de regressão, utilizamos métricas que medem
+o quanto as previsões do modelo se aproximam dos valores observados. As principais
+métricas incluem $R^2$, $R^2$ ajustado, MSE, RMSE e MAE.
+
+\subsubsection{R²}
+
+O coeficiente $R^2$ indica a proporção da variabilidade dos dados que é explicada 
+pelo modelo. Ele varia de 0 a 1, sendo que valores mais próximos de 1 indicam 
+melhor ajuste.
+
+\begin{equation}
+    R^2 = 1 - \frac{\displaystyle \sum_{i = 1}^{n}(y_i - \hat{y}_i)^2}{\displaystyle (y_i - \bar{y})^2}
+\end{equation}
+
+Se $R^2$ está próximo de $0$, significa que o modelo não explica nada da variabilidade
+dos dados. Se $R^2$ está próximo de $1$, indica que o modelo explica perfeitamente todos
+os pontos. O $R^2$ não penaliza modelos com muitos preditores, podendo superestimar a
+qualidade de modelos complexos.
+
+\subsubsection{R² ajustado}
+
+O $R^2$ ajustado corrige o $R^2$ para o número de variáveis preditoras, penalizando
+modelos que adicionam preditores irrelevantes ou que são redundantes:
+
+\begin{equation}
+    R^2_{ajustado} = 1 - \frac{(1 - R^2)(n - 1)}{n - p - 1}
+\end{equation}
+
+onde $n$ é o número de observações e $p$ o número de preditores.
+
+\subsubsection{MSE}
+
+O MSE calcula a média dos quadrados das diferenças entre os valores observados
+e as previsões do modelo:
+
+\begin{equation}
+    MSE = \frac{1}{n}\sum_{i = 1}^{n}(y_i - \hat{y}_i)^2
+\end{equation}  
+
+Quanto menor o MSE, melhor o ajuste do modelo. Valores elevados indicam grandes
+erros de previsão. Além disso, o MSE penaliza erros grandes de forma mais intensa
+devido à elevação ao quadrado.
+
+\subsubsection{RMSE}
+
+O RMSE é a raiz quadrada do MSE, trazendo a métrica para a mesma escala das variáveis
+originais:
+
+\begin{equation}
+    RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^{n}(y_i - \hat{y}_i)^2}
+\end{equation}
+
+O RMSE fornece uma medida direta da magnitude média do erro de previsão. É ideal quando
+queremos penalizar mais fortemente grandes desvios.
+
+\subsection{MAE}
+
+O MAE calcula a média das diferenças absolutas entre valores observados e previstos:
+
+\begin{equation}
+    MAE = \frac{1}{n}\sum_{i = 1}^{n}|y_i - \hat{y}_i|
+\end{equation}
+
+Valores menores indicam previsões mais precisas. Além disso, o MAE não penaliza
+tanto erros grandes como o RMSE, sendo mais robusto a outliers.
+
+\begin{table}[h!]
+\centering
+\caption{Resumo das principais métricas de avaliação de modelos de regressão}
+\begin{tabular}{@{} l c p{5cm} p{6cm} @{}}
+\toprule
+\textbf{Métrica} & \textbf{Fórmula} & \textbf{Interpretação} & \textbf{Uso / Observações} \\
+\midrule
+$R^2$ & $1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}$ & Proporção da variabilidade explicada pelo modelo (0 a 1). Valores maiores indicam melhor ajuste. & Comparar modelos com o mesmo conjunto de dados; não penaliza excesso de preditores. \\
+$R^2$ ajustado & $1 - \frac{(1-R^2)(n-1)}{n-p-1}$ & Ajusta o $R^2$ para o número de preditores, penalizando variáveis irrelevantes. & Comparar modelos com diferentes números de variáveis; ajuda a evitar overfitting. \\
+MSE & $\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$ & Média dos quadrados dos erros. Penaliza fortemente erros grandes. & Útil para otimização de modelos; sensível a outliers. \\
+RMSE & $\sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$ & Raiz quadrada do MSE, mantém a escala original dos dados. & Facilita interpretação do erro médio; penaliza erros grandes. \\
+MAE & $\frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$ & Média das diferenças absolutas. Mais robusto a outliers. & Útil quando se deseja uma medida estável e menos sensível a grandes discrepâncias. \\
+\bottomrule
+\end{tabular}
+\label{tab:metricas_regressao}
+\end{table}
+
+
 \end{document}
