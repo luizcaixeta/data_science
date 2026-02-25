@@ -913,14 +913,58 @@ seu funcionamento pode ser descrito da seguinte forma:
 \end{itemize}
 \end{enumerate}
 
-Épsilon é um único parâmetro que controle esse algoritmo. Se épsilon é 1, temos um 
+$\varepsilon$ é um único parâmetro que controle esse algoritmo. Se épsilon é 1, temos um 
 experimento A/B padrão simples (alocação aleatória entre A e B para cada indivíduo). 
 Se épsilon é 0, temos um algoritmo puramente greedy (um que escolhe a melhor opção 
 imediata disponível).
 
+\subsection{Tamanho da amostra}
 
+Para definirmos o tamanho da amostra necessária para avaliar um teste A/B, precisamos 
+definir:
 
+\begin{itemize}
+    \item Tamanho do efeito que queremos detectar;
+    \item Nível de significância ($\alpha$) em que o teste será realizado;
+    \item Potência do teste ($1 - \beta$)
+\end{itemize}
 
+O tamanho do efeito que queremos detectar é a melhoria mínima que queremos encontrar.
+Por exemplo, podemos definir que o experimento só vale a pena se houver um aumento de 
+pelo menos 2 pontos percentuais na taxa de conversão (de 10\% para 12\%).
+
+O nível de significância ($\alpha$) é a probabilidade de cometer um erro do Tipo I, ou seja,
+rejeitar a hipótese nula quando ela é verdadeira. 
+
+A potência do teste é a probabilidade de detectar o efeito definido caso ele realmente exista 
+(encontrar uma diferença real).
+
+Em Python, podemos calcular o tamanho da amostra fazendo:
+
+\begin{pythoncode}
+from statsmodels.stats.power import NormalIndPower
+from statsmodels.stats.proportion import proportion_effectsize 
+
+# taxas esperadas
+p1 = 0.10 # taxa atual de conversão (1%)
+p2 = 0.12 # nova meta de conversão (12%)
+
+effect_size = proportion_effectsize(p1, p2)
+
+alpha = 0.05
+power = 0.8
+
+analysis = NormalIndPower()
+
+n = analysis.solve_power(
+    effect_size=effect_size,
+    alpha=alpha,
+    power=power,
+    alternativa='two-sided'
+)
+
+print(f"Tamanho da amostra por grupo: {round(n)}")
+\end{pythoncode}
 
 
 \end{document}
