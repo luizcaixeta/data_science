@@ -1075,21 +1075,15 @@ em $k$ subconjuntos (folds) de tamanho aproximadamente igual. O modelo é treina
 cada vez utilizando $k -1$ folds para treinamento e o fold restante para teste. A performance
 final é a média das métricas obtidas em cada iteração.
 
-\begin{algorithm}[h!]
-\caption{Validação Cruzada $k$-Fold}
-\begin{algorithmic}[1]
-\Require Conjunto de dados $D$, número de folds $k$
-\Ensure Estimativa de desempenho do modelo
-\State Divida $D$ em $k$ folds de tamanho aproximadamente igual: $D_1, D_2, \dots, D_k$
-\For{$i = 1$ to $k$}
-    \State $D_{\text{treino}} = D \setminus D_i$ \Comment{todos os folds exceto o $i$-ésimo}
-    \State $D_{\text{teste}} = D_i$ \Comment{o $i$-ésimo fold}
-    \State Treine o modelo em $D_{\text{treino}}$
-    \State Avalie o modelo em $D_{\text{teste}}$, registrando a métrica de interesse
-\EndFor
-\State Calcule a média das métricas registradas para obter a estimativa final
-\end{algorithmic}
-\end{algorithm}
+\begin{itemize}
+    \item Reserve $1/k$ dos dados como uma amostra de validação;
+    \item Treine o modelo nos dados restantes;
+    \item Aplique o modelo na validação de $1/k$ e registre as métricas de avaliação do modelo necessárias;
+    \item Recoloque os primeiros $1/k$ dos dados e reserver os $1/k$ seguintes (excluindo quaisquer registros que foram escolhidos na primeira vez);
+    \item Repita os passos 2 e 3;
+    \item Repita até que cada registro tenha sido usado na porção de validação;
+    \item Tire a média ou combine as métricas de avaliação do modelo.
+\end{itemize}
 
 \subsection{Métricas de avaliação}
 
