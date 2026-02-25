@@ -966,5 +966,101 @@ n = analysis.solve_power(
 print(f"Tamanho da amostra por grupo: {round(n)}")
 \end{pythoncode}
 
+\section{Predição}
+
+\subsection{Regressão linear simples}
+
+A regressão linear simples é um método estatístico utilizado para modelar 
+a relação entre uma variável $Y$ e uma única variável explicativa $X$.
+
+Seu objetivo é estimar quanto, em média, $Y$ varia quando $X$ aumenta
+em uma unidade, assumindo que essa relação possa se aproximar de algo linear.
+
+O modelo é representado por:
+
+\begin{equation}
+    Y = b_0 + b_1 X
+\end{equation}
+
+\begin{itemize}
+\item $b_0$ é o intercepto, isto é, o valor esperado de $Y$ quando $X = 0$;
+\item $b_1$ é o coeficiente angular (inclinação da reta), que representa a variação média em $Y$ para cada aumento unitário em $X$;
+\item $Y$ é a variável resposta (target);
+\item $X$ é a variável preditora (feature).
+\end{itemize}
+
+Em Python, podemos ver o quão os dados se ajustam a uma reta fazendo:
+
+\begin{pythoncode}
+from sklearn.linear_model import LinearRegression
+
+predictors = ['Coluna_exemplo']
+outcome = 'Exemplo'
+
+model = LinearRegression()
+model.fit(lung[predictors], lung[outcome])
+
+print(f'Intercepto: {model.intercept_:.3f}')
+print(f'Coeficiente: {model.coef_[0]:.3f}')
+\end{pythoncode}
+
+Em geral, os dados não se adequam perfeitamente à reta estimada, então
+na equação de regressão utilizamos um termo $e_i$ para representar a variação
+não explicada pelo modelo:
+
+\begin{equation}
+    Y_i = b_0 + b_1X_i + e_i
+\end{equation}
+
+Após estimar os coeficientes $\hat{b}_0$ e $\hat{b}_1$, podemos calcular os 
+valores ajustados (ou preditos) pela reta:
+
+\begin{equation}
+    \hat{Y}_i = \hat{b}_0 _ \hat{b}_1X_i
+\end{equation}
+
+O resíduo de cada observação é a diferença etnre o valor observado e o valor ajustado:
+
+\begin{equation}
+    \hat{e}_i = Y_i - \hat{Y}_i
+\end{equation}
+
+Em Python, podemos obter os valores \textit{ftted} e os valores residuals:
+
+\begin{pythoncode}
+# valores ajustados (previsões do modelo)
+fitted = model.predict(lung[predictors])
+
+# resíduos (diferença entre valores observados e ajustados)
+residuals = lung[outcome] - fitted
+\end{pythoncode}
+
+A melhor reta escolhida pelo modelo é aquela que minimiza a soma residual dos quadrados:
+
+\begin{equation}
+    RSS(b_0, b_1) = \sum_{i = 1}^{n}(Y_i - Y_i)^2 = \sum_{i = 1}^{n}(Y_i - b_0 - b_1X_i)^2
+\end{equation}
+
+Para encontrarmos os $\hat{b}_0$ e $\hat{b}_1$ que otimizam $RSS(b_0, b_1)$:
+
+\begin{align*}
+    &\frac{\partial}{\partial b_0}RSS(b_0, b_1) = -2\sum_{i = 1}^{n}(Y_i - b_0 - b_1X_i) = 0 \\
+    &\frac{\partial}{\partial b_1}RSS(b_0, b_1) = -2\sum_{i = 1}^{n}(Y_i - b_0 - b_1X_i) = 0
+\end{align*}
+
+A solução explícita da equação retorna
+
+\begin{align*}
+    &\hat{b}_1 = \frac{\sum(X_i - \bar{X})(Y_i - \bar{Y})}{\sum(X_i - \bar{X})^2} = \frac{Cov(X, Y)}{Var(X)} \\
+    &\hat{b}_0 = \bar{Y} - \hat{b}_1\bar{X}
+\end{align*}
+
+\subsection{Regressão linear múltipla}
+
+A regressão linear múltipla é utilizada quando existe duas ou mais variáveis preditoras:
+
+\begin{equation}
+    Y = b_0 + b_1X_1 + \sum_{i = 2}^{n}b_iX_i
+\end{equation}
 
 \end{document}
