@@ -1129,6 +1129,155 @@ No \textit{scikit-learn}, essa ponderação pode ser implementada passando
 o argumento \texttt{sample\_weight} ao método \texttt{fit}, permitindo que 
 cada observação contribua de forma diferenciada para o ajuste do modelo.
 
+\subsection{Variáveis fatoriais na regressão}
+
+As variáveis fatoriais (ou variáveis categóricas) representam características qualitativas,
+como cor, cidade, tipo de produto ou nível educacional. Diferentemente das variáveis
+numéricas, seus valores são categorias discretas e não possuem, necessariamente,
+ordem ou significado quantitativo.
+
+Modelos de regressão trabalham com valores numéricos, portanto variáveis categóricas
+precisam ser transformadas em representações numéricas adequadas antes de serem
+utilizadas no modelo. Essa transformação deve preservar a informação categórica
+sem introduzir relações numéricas artificiais entre os níveis do fator.
+
+\subsection{Variáveis fatoriais ordenadas}
+
+Algumas variáveis fatoriais possuem uma estrutura de ordem natural entre
+seus níveis. Essas variáveis são chamadas de variáveis categóricas ordinais.
+Diferentemente das variáveis nominais, aqui existe hierarquia entre as categorias,
+embora a distância entre elas não seja necessariamente conhecida.
+
+Um exemplo clássico são as notas de alunos, que podem assumir valores como
+$A+$, $A$, $A-$, $\dots$, $F$. Nesse caso, sabemos que $A+$ representa
+desempenho superior a $A$, que por sua vez é superior a $A-$, e assim
+sucessivamente até $F$. Existe, portanto, uma ordenação clara entre os níveis.
+
+Ao incorporar esse tipo de variável em um modelo de regressão, é importante
+que a transformação numérica preserve essa estrutura ordinal. Uma abordagem
+simples é mapear os níveis para valores inteiros crescentes ou decrescentes,
+por exemplo:
+
+\[
+A+ = 6, \quad A = 5, \quad A- = 4, \quad \dots, \quad F = 0.
+\]
+
+Essa codificação respeita a ordem das categorias, mas assume implicitamente
+que as diferenças entre níveis consecutivos são iguais. Essa suposição pode
+não ser realista, pois a diferença de desempenho entre $A+$ e $A$ pode não
+ser equivalente à diferença entre $C$ e $D$.
+
+Quando não queremos assumir distâncias iguais entre categorias,
+podemos tratar a variável ordinal como categórica comum,
+utilizando variáveis fictícias ($k - 1$ dummies). Isso elimina
+a suposição de espaçamento uniforme, mas também deixa de explorar
+a informação de ordenação.
+
+Portanto, a escolha da codificação depende da interpretação desejada
+e das hipóteses que estamos dispostos a assumir sobre a estrutura
+entre os níveis do fator.
+
+\subsubsection{Variáveis fictícias (Dummy Variables)}
+
+Variáveis fictícias são variáveis binárias (0 ou 1) criadas a partir de uma
+variável categórica com $k$ níveis. Em geral, criamos $k - 1$ variáveis binárias,
+cada uma indicando a presença (1) ou ausência (0) de um determinado nível.
+
+\subsubsection{Codificação de referência (Treatment Coding)}
+
+A codificação de referência é a abordagem tradicional na estatística.
+Seleciona-se um dos níveis do fator como base (ou referência), e os coeficientes
+estimados indicam o efeito dos demais níveis em relação a essa categoria base.
+
+Com $k$ níveis, utilizamos $k - 1$ variáveis fictícias. O intercepto do modelo
+passa a representar o valor esperado da variável resposta para a categoria
+de referência, e os coeficientes associados às demais categorias indicam
+a diferença média em relação a essa referência.
+
+Essa abordagem evita o problema da multicolinearidade perfeita
+(conhecido como \textit{dummy variable trap}), que ocorre quando incluímos
+todas as categorias simultaneamente junto com o intercepto.
+
+\subsubsection{Codificação One-Hot}
+
+Na codificação \textit{one-hot}, criamos $k$ variáveis binárias, uma para cada
+nível do fator. Cada observação terá exatamente um valor igual a 1 e os demais
+iguais a 0.
+
+Essa abordagem é amplamente utilizada em aprendizado de máquina,
+principalmente em algoritmos que não assumem estrutura linear explícita
+(como árvores de decisão ou redes neurais).
+
+Entretanto, em regressão linear múltipla com intercepto, incluir todas
+as $k$ categorias gera multicolinearidade perfeita. Por isso, ao utilizar
+\textit{one-hot encoding} em regressão linear, normalmente remove-se uma
+das colunas (equivalente à codificação de referência).
+
+\subsubsection{Codificação de desvio (Effect Coding)}
+
+Na codificação de desvio, cada nível do fator é comparado com a média global,
+em vez de ser comparado com uma categoria de referência específica.
+
+Nesse caso, os coeficientes estimados indicam o quanto cada categoria
+difere da média geral da variável resposta. A soma dos coeficientes
+associados às categorias é igual a zero, o que facilita a interpretação
+quando o interesse está em avaliar desvios em relação ao comportamento médio.
+
+Essa codificação é particularmente útil em análises experimentais
+e em modelos nos quais não há uma categoria naturalmente dominante
+ou preferencial como referência.
+
+\subsection{Multicolinearidade}
+
+A multicolinearidade ocorre quando duas ou mais variáveis preditoras de um modelo
+apresentam forte correlação entre si. Assim, uma variável pode ser perfeitamente 
+(ou aproximadamente) explicada como combinação linear de outras variáveis.
+
+Em regressão linear múltipla, estimamos coeficientes no modelo:
+
+\begin{equation*}
+    Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + ... + \beta_pX_p + \varepsilon
+\end{equation*}
+
+Se, por exemplo, $X_2$ for quase uma cópia de $X_1$, o modelo terá dificuldade
+em separar o efeito individual de cada uma sobre $Y$.
+
+\subsubsection{Interpretação geométrica}
+
+Na forma matricial, a regressão linear é escrita como
+
+\begin{equation*}
+    y = X\beta + \varepsilon
+\end{equation*}
+
+A estimativa de mínimos quadrados é:
+
+\begin{equation*}
+    \hat{\beta} = (X^{T}X)^{-1}X^{T}y
+\end{equation*}
+
+Geometricamente:
+
+\begin{itemize}
+    \item As colunas de $X$ são vetores no espaço $\mathcal{R}^{n}$
+    \item Esses vetores geram um subespaço vetorial
+    \item A regressão consiste em projetar y nesse subespaço
+\end{itemize}
+
+Ou seja, encontramos a combinação linear das colunas de $X$ que mais 
+se aproxima de $y$.
+
+Quando há multicolinearidade, temos uma situação em que dois vetores 
+$X_i$ e $X_j$ são quase paralelos:
+
+\begin{equation*}
+    X_j \approx cX_i
+\end{equation*}
+
+gerando grandes variações em $\hat{\beta}$
+
+
+
 \subsection{Validação cruzada}
 
 A validação cruzada é uma técnica utilizada para avaliar a capacidade de generalização
