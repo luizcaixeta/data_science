@@ -1276,6 +1276,111 @@ $X_i$ e $X_j$ são quase paralelos:
 
 gerando grandes variações em $\hat{\beta}$
 
+\subsection{Valores influentes}
+
+Em regressão, um valor influente é uma observação cuja remoção pode
+alterar significativamente os coeficientes estimados do modelo.
+Trata-se de um ponto que exerce impacto relevante sobre a
+equação ajustada.
+
+É importante destacar que um ponto influente não precisa,
+necessariamente, apresentar um grande resíduo. A influência depende
+não apenas do erro de ajuste, mas também da posição da observação
+no espaço das variáveis explicativas.
+
+\subsubsection{Alavancagem (Leverage)}
+
+A alavancagem mede o quanto uma observação está distante do centro
+das variáveis explicativas. Pontos com valores extremos em $X$
+possuem maior potencial de influenciar o ajuste da reta.
+
+Uma medida comum de alavancagem é o chamado \textit{valor chapéu}
+($h_{ii}$), obtido a partir da matriz chapéu:
+
+\[
+H = X (X^T X)^{-1} X^T.
+\]
+
+Os elementos diagonais $h_{ii}$ indicam a alavancagem da $i$-ésima observação.
+
+Uma regra prática é considerar que um ponto possui alta alavancagem se
+
+\[
+h_{ii} > \frac{2(p + 1)}{n},
+\]
+
+em que $p$ é o número de variáveis explicativas e $n$ é o tamanho da amostra.
+
+\subsubsection{Distância de Cook}
+
+A distância de Cook combina duas informações:
+
+\begin{itemize}
+    \item o tamanho do resíduo da observação;
+    \item sua alavancagem.
+\end{itemize}
+
+Ela mede o quanto os coeficientes do modelo mudariam caso aquela
+observação fosse removida.
+
+Uma regra comum é considerar uma observação potencialmente
+influente se:
+
+\[
+D_i > \frac{4}{n - p - 1}.
+\]
+
+Valores elevados de distância de Cook indicam que o ponto tem forte
+impacto sobre o ajuste do modelo.
+
+\subsubsection{Gráfico de influência}
+
+O gráfico de influência (ou gráfico de bolhas) permite visualizar,
+em uma única representação:
+
+\begin{itemize}
+    \item resíduos padronizados (eixo vertical),
+    \item alavancagem (eixo horizontal),
+    \item distância de Cook (tamanho das bolhas).
+\end{itemize}
+
+Esse tipo de gráfico facilita a identificação de observações que
+combinam alto erro e alta alavancagem.
+
+\subsection{Heteroscedasticidade}
+
+Heteroscedasticidade ocorre quando a variância dos erros (ou resíduos)
+não é constante ao longo dos valores das variáveis explicativas
+ou dos valores previstos pelo modelo.
+
+Em um modelo de regressão linear clássico, assumimos homocedasticidade,
+isto é,
+
+\[
+\mathrm{Var}(\varepsilon_i) = \sigma^2 \quad \text{para todo } i.
+\]
+
+Quando essa condição não é satisfeita, temos:
+
+\[
+\mathrm{Var}(\varepsilon_i) = \sigma_i^2,
+\]
+
+ou seja, a variância dos erros depende da observação.
+
+A presença de heteroscedasticidade pode indicar que o modelo está
+incompleto ou mal especificado. Pode haver:
+
+\begin{itemize}
+    \item variáveis relevantes omitidas;
+    \item transformação inadequada da variável resposta;
+    \item crescimento natural da variabilidade conforme a escala aumenta.
+\end{itemize}
+
+Por exemplo, em dados de renda, é comum que indivíduos com maior renda
+apresentem maior variabilidade absoluta, gerando aumento da dispersão
+dos resíduos.
+
 
 
 \subsection{Validação cruzada}
