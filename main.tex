@@ -1105,6 +1105,29 @@ for name, coef in zip(best_variables, best_model.coef_):
     print(f' {name}: {coef}')
 \end{pythoncode}
 
+\subsection{Regressão ponderada}
+
+A regressão ponderada (Weighted Least Squares - WLS) é uma variação 
+da regressão linear tradicional na qual atribuímos pesos diferentes 
+às observações do conjunto de dados. O objetivo é dar maior importância 
+às observações consideradas mais confiáveis ou mais relevantes para 
+o problema em análise. Aqui, minimizamos:
+
+\begin{equation}
+    \sum_{i = 1}^{n} \omega_i (y_i - \hat{y}_i)^2
+\end{equation}
+
+em que $\omega_i$ representa o peso associado à $i$-ésima observação. 
+
+Por exemplo, em um conjunto de dados de valores imobiliários, registros 
+antigos podem ser menos representativos das condições atuais do mercado.
+Nesse caso, podemos atribuir pesos menores às observações mais antigas 
+e pesos maiores às mais recentes, fazendo com que o modelo ajuste a reta 
+priorizando dados mais atuais.
+
+No \textit{scikit-learn}, essa ponderação pode ser implementada passando 
+o argumento \texttt{sample\_weight} ao método \texttt{fit}, permitindo que 
+cada observação contribua de forma diferenciada para o ajuste do modelo.
 
 \subsection{Validação cruzada}
 

@@ -13,3 +13,5 @@ output/
 *.bbl
 *.blg
 *.pdf
+
+.vscode
