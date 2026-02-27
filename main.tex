@@ -1473,7 +1473,7 @@ O MAE calcula a média das diferenças absolutas entre valores observados e prev
 Valores menores indicam previsões mais precisas. Além disso, o MAE não penaliza
 tanto erros grandes como o RMSE, sendo mais robusto a outliers.
 
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 \caption{Resumo das principais métricas de avaliação de modelos de regressão}
 \begin{tabular}{@{} l c p{5cm} p{6cm} @{}}
@@ -1504,7 +1504,7 @@ O modelo estima probabilidades para cada classe e atribui à observação
 aquela com maior probabilidade estimada. 
 
 No scikit-learn, os métodos de predição costumam oferecer duas saídas principais:
-\textit{predict} que retorna diretamente a classe prevista e \textit{predict_proba} que 
+\textit{predict} que retorna diretamente a classe prevista e \textit{predict\_proba} que 
 retorna as possibilidades estimadas para cada classe. 
 
 De forma geral, o procedimento de classificação segue a seguinte lógica:
@@ -1524,6 +1524,175 @@ queremos classificar $Y \in {0, 1, 2}$. Podemos fazer isso da seguinte forma:
     \item Em seguida, para os casos em que $Y > 0$, construir um segundo modelo para decidir entre $Y = 1$ e $Y = 2$.
 \end{itemize}
 
+\subsection{Naive Bayes}
 
+O algoritmo Naive Bayes é um método de classificação probabilístico baseado
+no Teorema de Bayes. Seu objetivo é estimar a probabilidade de uma classe
+$Y = i$ dado um conjunto de variáveis preditoras $X_1, X_2, ..., X_p$.
+
+Em vez de calcular diretamente $P(Y \mid X_1, ..., X_p)$, o algoritmo utiliza
+o Teorema de Bayes:
+
+\begin{equation}
+P(Y \mid X_1, ..., X_p) =
+\frac{P(X_1, ..., X_p \mid Y)\,P(Y)}{P(X_1, ..., X_p)}
+\end{equation}
+
+A principal suposição do modelo é que as variáveis preditoras são
+condicionalmente independentes entre si dado o valor da classe $Y$.
+Essa hipótese simplifica o cálculo:
+
+\begin{equation}
+P(X_1, ..., X_p \mid Y)
+=
+\prod_{j=1}^{p} P(X_j \mid Y)
+\end{equation}
+
+Para classificar um novo registro:
+
+\begin{itemize}
+    \item Calcula-se a probabilidade posterior de cada classe:
+    \[
+    P(Y=i)\prod_{j=1}^{p} P(X_j \mid Y=i)
+    \]
+    \item Compara-se o valor obtido para cada classe
+    \item Atribui-se ao novo registro a classe com maior probabilidade
+\end{itemize}
+
+\textbf{Exemplo}
+
+Por exemplo, vamos supor que estamos criando um sistema para classificação de 
+e-mails. Os e-mails sempre classificados como "Spam" e "Não spam". Nos e-mails 
+da classe "Spam", sabemos que eles possuem a característica de conter palavras 
+como "promoção" e "urgente". Assim, para um e-mail que contém as duas palavras 
+"urgente" e "promoção", queremos calcular:
+
+\begin{align*}
+    &P(\text{Spam}|\text{urgente,promoção}) \\
+    &P(\text{Não Spam}|\text{urgente,promoção})
+\end{align*}
+
+Vamos supor que, no treinamento, encontramos:
+
+\begin{align*}
+    &P(\text{Spam}) = 0.4 \\
+    &P(\text{Não Spam}) = 0.6
+\end{align*}
+
+E as probabilidades condicionais:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Palavra} & 
+$\mathbf{P(\text{palavra} \mid \text{Spam})}$ & 
+$\mathbf{P(\text{palavra} \mid \text{Não Spam})}$ \\
+\hline
+urgente & 0.7 & 0.2 \\
+promoção    & 0.8 & 0.1 \\
+\hline
+\end{tabular}
+\caption{Probabilidades condicionais estimadas no treinamento}
+\end{table}
+
+Então, aplicamos a fórmula:
+
+\begin{equation*}
+    P(Y)\prod_{j}P(X_j|Y)
+\end{equation*}
+
+Para classe Spam:
+
+\begin{equation*}
+    P(\text{Spam})\times P(\text{urgente|Spam}) \times P(\text{promoção|Spam}) = 0.4 \times 0.7 \times 0.8 = 0.224
+\end{equation*}
+
+Para classe não spam:
+
+\begin{equation*}
+    P(\text{Não Spam}) \times P(\text{urgente|Não Spam}) \times P(\text{promoção|Não spam}) = 0.6 \times 0.2 \times 0.1 = 0.012
+\end{equation*}
+
+Calculando a probabilidade normalizada:
+
+\begin{equation*}
+    0.224 + 0.012 = 0.236
+\end{equation*}
+
+Então:
+
+\begin{align*}
+    &P(\text{Spam | X}) = \frac{0.224}{0.236} \approx 0.949 \\
+    &P(\text{Não Spam | X}) = \frac{0.012}{0.236} \approx 0.051
+\end{align*}
+
+Então, a probabilidade de ser spam é de 94.9\%.
+
+Em Python, teríamos algo como:
+
+\begin{pythoncode} 
+import pandas as pd 
+from sklearn.naive_bayes import MultinomialNB 
+
+predictors = ["urgente", "promocao"]
+outcome = "classe" 
+
+X = pd.get_dumies(data[predictors], drop_first=False)
+y = data[outcome]
+
+naive_model = MUltinomialNB()
+naive_model.fit(X, y)
+\end{pythoncode}
+
+\textbf{Segundo exemplo:}
+
+Imagine que vamos testar o seguinte dataset para e-mails que são spam e não são spam:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Palavra} & 
+$\mathbf{P(\text{Palavra} \mid \text{Não Spam})}$ & 
+$\mathbf{P(\text{Palavra} \mid \text{Spam})}$ \\
+\hline
+Dear   & 0.47 & 0.29 \\
+Friend & 0.29 & 0.14 \\
+Lunch  & 0.18 & 0.00 \\
+Money  & 0.06 & 0.57 \\
+\hline
+\end{tabular}
+\caption{Probabilidades condicionais estimadas para cada classe}
+\end{table}
+
+Suponha que recebemos o e-mail:
+
+\begin{center}
+\texttt{"Lunch Money Money Money Money"}
+\end{center}
+
+\begin{equation*}
+    P(\text{Não spam}) \times P(\text{Lunch | Não spam}) \times P(\text{Money | Não spam})^4 = 0.000002 
+\end{equation*}
+
+O que é uma probabilidade muito pequena, afinal dificilmente receberíamos um e-mail de um amigo
+com a palavra "Money" tantas vezes. Agora, calculando a probabilidade de que seja spam:
+
+\begin{equation*}
+    P(\text{Spam}) \times P(\text{Lunch | Spam}) \times P(\text{Money | Spam})^4 = 0
+\end{equation*}
+
+O valor é zero porque, nos dados de treinamento,
+a palavra ``Lunch'' nunca apareceu em e-mails classificados como spam. Para resolver
+esse problema, utilizamos uma correção chamada \textbf{Laplace Smoothing}, adicionando
+1 a todas as contagens:
+
+\begin{equation*}
+    P(\text{palavra}_j | Y) = \frac{\text{contagem}_{j, Y} + 1}{\text{total de palavras na classe Y} + V}
+\end{equation*}
+
+onde V é o tamanho do vocabulário. Assim, mesmo que o modelo nunca tenha visto a palavra
+em uma determinada classe, não assume que a probabilidade seja zero, apenas que é muito pequena.
 
 \end{document}
