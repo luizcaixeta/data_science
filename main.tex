@@ -1490,5 +1490,40 @@ MAE & $\frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$ & Média das diferenças ab
 \label{tab:metricas_regressao}
 \end{table}
 
+\section{Classificação}
+
+Em modelos de classificação, o objetivo é estimar a probabilidade de que uma observação
+pertença a uma determinada categoria. Essa categoria pode ser:
+
+\begin{itemize}
+    \item Binária: duas classes possíveis (por exemplo, 0 ou 1);
+    \item Multiclasse: mais de duas categorias possíveis (A, B, C, ...)
+\end{itemize}
+
+O modelo estima probabilidades para cada classe e atribui à observação 
+aquela com maior probabilidade estimada. 
+
+No scikit-learn, os métodos de predição costumam oferecer duas saídas principais:
+\textit{predict} que retorna diretamente a classe prevista e \textit{predict_proba} que 
+retorna as possibilidades estimadas para cada classe. 
+
+De forma geral, o procedimento de classificação segue a seguinte lógica:
+
+\begin{enumerate}
+    \item Estimar a probabilidade de o registro pertencer a cada classe;
+    \item Definir uma probabilidade de corte (threshold) para a classe de interesse;
+    \item Se a probabilidade estimada ultrapassar esse valor de corte, atribuir o registro à aquela classe; caso contrário, classificá-lo na classe alternativa.
+\end{enumerate}
+
+Em problemas multiclasse, principalmente quando há desbalanceamento entre categorias, pode
+ser vantajoso reformular o problema como múltiplos problemas binários. Por exemplo, suponha que
+queremos classificar $Y \in {0, 1, 2}$. Podemos fazer isso da seguinte forma:
+
+\begin{itemize}
+    \item Primeiro, modelar o problema como $Y = 0$ versus $Y > 0$;
+    \item Em seguida, para os casos em que $Y > 0$, construir um segundo modelo para decidir entre $Y = 1$ e $Y = 2$.
+\end{itemize}
+
+
 
 \end{document}
