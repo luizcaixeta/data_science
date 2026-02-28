@@ -1524,10 +1524,43 @@ queremos classificar $Y \in {0, 1, 2}$. Podemos fazer isso da seguinte forma:
     \item Em seguida, para os casos em que $Y > 0$, construir um segundo modelo para decidir entre $Y = 1$ e $Y = 2$.
 \end{itemize}
 
+\subsection{Teorema de Bayes}
+
+O teorema de Bayes é declarado matematicamente como a seguinte equação:
+
+\begin{equation}
+    P(A|B) = \frac{P(B|A)P(A)}{P(B)}
+\end{equation}
+
+onde A e B são eventos e $P(B) \neq 0$.
+
+\begin{itemize}
+    \item $P(A|B)$ é a probabilidade condicional: a probabilidade de evento A ocorrento
+    dado que B é verdade. Também é chamado de probabilidade posterior de A dado B.
+    \item $P(B|A)$ é também uma probabilidade condicional: a probabilidade de evento B 
+    ocorrendo dado que A é verdade. Também pode ser interpretado como a probabilidade de A dado
+    um fixo B.
+    \item $P(A)$ e $P(B)$ são as probabilidades de observar A e B respectivamente, sem 
+    quaisqer condições. $P(A)$, a quantidade de interesse, é muitas vezes chamada de a 
+    probabilidade prévia (antes de novas evidências). Tecnicamente, ambos $P(A)$ e $P(B)$
+    poderia ser chamado de prévio, incondicionado, ou probabilidades marginais.
+\end{itemize}
+
+Em aplicação como inferência bayesiana, o evento B é fixo na discussão e desejamos 
+considerar o efeito de ter sido observado em nossa crença em vários eventos possíveis 
+A. Em tais situações, o denominador da última expressão, a probabilidade da evidência 
+dada B, é fixa; o que queremos variar é A. Assim:
+
+\begin{equation}
+    P(A|B) \propto P(A) \cdot P(B|A)
+\end{equation}
+
+Assim, o posterior é proporcional aos tempos anteriores a probabilidade.
+
 \subsection{Naive Bayes}
 
 O algoritmo Naive Bayes é um método de classificação probabilístico baseado
-no Teorema de Bayes. Seu objetivo é estimar a probabilidade de uma classe
+no Teorema de Bayes. Seu objetivo é estimar a probabilidade posterior de uma classe
 $Y = i$ dado um conjunto de variáveis preditoras $X_1, X_2, ..., X_p$.
 
 Em vez de calcular diretamente $P(Y \mid X_1, ..., X_p)$, o algoritmo utiliza
@@ -1537,6 +1570,15 @@ o Teorema de Bayes:
 P(Y \mid X_1, ..., X_p) =
 \frac{P(X_1, ..., X_p \mid Y)\,P(Y)}{P(X_1, ..., X_p)}
 \end{equation}
+
+Onde:
+
+\begin{itemize}
+    \item $P(Y|X)$ é a probabilidade posterior 
+    \item $P(Y)$ é a probabilidade a priori 
+    \item $P(X|Y)$ é a verossimilhança 
+    \item $P(X)$ é a evidência 
+\end{itemize}
 
 A principal suposição do modelo é que as variáveis preditoras são
 condicionalmente independentes entre si dado o valor da classe $Y$.
@@ -1551,7 +1593,7 @@ P(X_1, ..., X_p \mid Y)
 Para classificar um novo registro:
 
 \begin{itemize}
-    \item Calcula-se a probabilidade posterior de cada classe:
+    \item Calcula-se  o valor proporcional a probabilidade posterior de cada classe:
     \[
     P(Y=i)\prod_{j=1}^{p} P(X_j \mid Y=i)
     \]
@@ -1627,7 +1669,7 @@ Então:
     &P(\text{Não Spam | X}) = \frac{0.012}{0.236} \approx 0.051
 \end{align*}
 
-Então, a probabilidade de ser spam é de 94.9\%.
+Então, a probabilidade posterior de o e-mail spam é de 94.9\%.
 
 Em Python, teríamos algo como:
 
