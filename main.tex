@@ -1741,4 +1741,44 @@ em uma determinada classe, não assume que a probabilidade seja zero, apenas que
 (por exemplo, com classificação de spam, em que a presença ou ausência de palavras, frases, caracteres etc.
 é o centro da tarefa preditiva). 
 
+\subsection{Análise discriminante}
+
+\subsubsection{Matriz de convariância}
+
+Para entender a análise discriminante, é necessário primeiro entender o conceito de covariância entre duas
+ou mais variávies. A covariância mede o relacionamento entre duas variáveis $x$ e $z$. A covariância $Cov(x, z)$
+é dada por:
+
+\begin{equation}
+    Cov(x, z) = \frac{\displaystyle \sum_{i = 1}^{n}(x_i - \bar{x})(z_i - \bar{z})}{n - 1}
+\end{equation}
+
+\begin{itemize}
+    \item Se $\mathrm{Cov}(X, Z) > 0$, as variáveis tendem a crescer juntas.
+    \item Se $\mathrm{Cov}(X, Z) < 0$, quando uma aumenta, a outra tende a diminuir.
+    \item Se $\mathrm{Cov}(X, Z) \approx 0$, não há evidência de relação linear.
+\end{itemize}
+
+Diferentemente da correlação, a covariância depende da escala das variáveis.
+Sua magnitude não é limitada ao intervalo $[-1,1]$, pois é influenciada
+pelas unidades de medida de $X$ e $Z$.
+
+Em um vetor aleatório $\mathbf{X} = (X_1, X_2, \dots, X_p)^T$, a matriz de
+covariância $\Sigma$ é definida como:
+
+\begin{equation}
+\Sigma =
+\begin{bmatrix}
+\mathrm{Var}(X_1) & \mathrm{Cov}(X_1,X_2) & \cdots & \mathrm{Cov}(X_1,X_p) \\
+\mathrm{Cov}(X_2,X_1) & \mathrm{Var}(X_2) & \cdots & \mathrm{Cov}(X_2,X_p) \\
+\vdots & \vdots & \ddots & \vdots \\
+\mathrm{Cov}(X_p,X_1) & \mathrm{Cov}(X_p,X_2) & \cdots & \mathrm{Var}(X_p)
+\end{bmatrix}
+\end{equation}
+
+Os elementos da diagonal principal representam as variâncias individuais,
+enquanto os demais elementos representam as covariâncias entre pares de variáveis.
+
+
+
 \end{document}
