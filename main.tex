@@ -1779,6 +1779,55 @@ covariância $\Sigma$ é definida como:
 Os elementos da diagonal principal representam as variâncias individuais,
 enquanto os demais elementos representam as covariâncias entre pares de variáveis.
 
+\subsubsection{Discriminante linear de Fisher}
+
+Em um problema de classificação binária, queremos prever um resultado
+$y \in {0, 1}$ utilizando variáveis numéricas contínuas, por exemplo 
+$(x, z)$.
+
+A análise discriminante linear (LDA) busca encontrar uma combinação 
+linear das variáveis 
+
+\begin{equation*}
+    \omega_i x+ \omega_2 z
+\end{equation*}
+
+que projete os dados em uma única dimensão de forma que as classes 
+fiquem o mais separadas possível.
+
+A ideia central do discriminante de Fisher é escolher o vetor $\omega$
+que maximiza a razão:
+
+\begin{equation}
+    J(\omega) = \frac{SS_{between}}{SS_{within}}
+\end{equation}
+
+$SS_{between}$ é a variabilidade entre as classes. Ele mede o quão 
+distante estão as médias das classes após a projeção. Sejam:
+
+\begin{itemize}
+    \item $\mu_0$ a média da classe 0 (após a projeção)
+    \item $\mu_1$ a média da classe 1 (após a projeção)
+\end{itemize}
+
+Então:
+
+\begin{equation*}
+    SS_{between} = (\mu_1 - \mu_0)^2
+\end{equation*}
+
+Quanto maior a distância entre as classes, melhor a separação.
+Por isso queremos maximizar $SS_{between}$.
+
+Enquanto isso, $SS_{within}$ mede a variabilidade dentro das classes.
+Ela mede o espalhamento dos pontos ao redor de suas próprias médias. Sejam:
+
+\begin{equation*}
+    SS_{within} = s_0^{2} + s_1^{2}
+\end{equation*}
+
+Se cada classe é muito espalhada elas se sobrepõe e, quanto maior a variância
+intera, pior a separação. 
 
 
 \end{document}
