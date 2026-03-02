@@ -1831,13 +1831,83 @@ intera, pior a separação.
 
 \subsection{Regressão logística}
 
+A regressão logística, diferentemente da regressão linear, não buscar ajustar
+uma reta diretamente aos valores da variável resposta. Em vez disso, modela a
+probabilidade de ocorrência de um evento binário (por exemplo, 0 ou 1), sendo 
+usada em problemas de classificação.
 
+Seja um evento $A$ definido em um espaço amostral $\Omega$, que representa o 
+conjunto de todos os resultados possíveis. A probabilidade de ocorrência desse 
+evento é dada por:
 
+\begin{equation}
+    P(A) = \frac{\text{número de casos favoráveis}}{\text{número total de casos possíveis}}
+\end{equation}
 
+No contexto da regressão logística, modelamos a probabilidade condicional de um
+evento dado um vetor de variáveis explicativas $x = (x_1, x_2, ..., x_p)$:
 
+\begin{equation}
+    P(Y = 1 | x) = p(x)
+\end{equation}
 
+As \textit{odds} representam a razão entre a probabilidade de sucesso e a probabilidade
+de fracasso. Para uma probabilidade $p(x)$,temos:
 
+\begin{equation}
+    \text{odds} = \frac{p(x)}{1 - p(x)}
+\end{equation}
 
+Ou seja, as \textit{odds} indicam quantas vezes o evento ocorre para cada vez
+que não ocorre. Podemos isolar $p(x)$ em função das \textit{odds}:
+
+\begin{equation}
+    p(x) = \frac{\text{odds}}{1 + \text{odds}}
+\end{equation}
+
+A ideia central da regressão logística é transformar a probabilidade (que está
+restritira ao intervalo $(0, 1)$) em uma variável que possa assumir qualquer 
+valor real. Escrever em função das \textit{odds} ainda não é suficiente, observe
+que:
+
+\begin{align*}
+    &p(x) \in (0, 1) \\
+    &\text{odds} \in (0, \infty)
+\end{align*}
+
+Para isso aplicamos o logaritmo nas \textit{odds}, obtendo o \textbf{logito}:
+
+\begin{equation}
+    \log\left(\frac{p(x)}{1 - p(x)}\right)
+\end{equation}
+
+Agora essa transformação pode assumir qualquer valor real. Portanto, modelamos:
+
+\begin{equation}
+    \log \left(\frac{p(x)}{1 - p(x)}\right) = \beta_0 + \sum_{i = 1}^{p}\beta_i x_i
+\end{equation}
+
+ou de forma compacta:
+
+\begin{equation}
+    \log \left(\frac{p(x)}{1 - p(x)}\right) = x^{T}\beta
+\end{equation}
+
+A função de \textit{log-odds} mapeia a probabilidade $p$ de $(0, 1)$ para qualquer 
+valor no intervalo $(-\infty, +\infty)$.
+
+Aplicando a exponencial em ambos os lados, podemos encontrar uma expressão para a 
+probabilidade:
+
+\begin{equation}
+    \frac{p(x)}{1 - p(x)} = e^{x^{T}\beta}
+\end{equation}
+
+Isolando $p(x)$:
+
+\begin{equation}
+    p(x) = \frac{e^{x^{T}\beta}{1 + e^{x^{T}\beta}}
+\end{equation}
 
 
 
