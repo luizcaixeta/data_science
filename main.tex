@@ -2096,22 +2096,48 @@ Assim:
 
 \textbf{Obs:}
 
-\subsubsection{Curva ROC}
+\subsubsection{Curva ROC}}
 
-\subsubsection{Curva ROC}
+Como visto, existe um \textit{trade-off} entre \textit{recall} (sensibilidade)
+e \textit{specificity} (especificidade). Em algumas situações, queremos que o
+modelo identifique corretamente o maior número possível de exemplos de classe 
+positiva $(1)$, mesmo que isso aumente a quantidade de falsos positivos. Em outros
+exemplos, preferimos que o modelo seja mais conservado ao prever a classe positiva,
+priorizando a identificação correta da classe negativa ($0$), ainda que isso 
+implique um maior número de falsos negativos.
 
-Como vimos, existe uma troca entre \textit{precision} e \textit{recall}. 
-Capturar mais exemplos da classe positiva (1) geralmente implica classificar 
-incorretamente mais exemplos da classe negativa (0) como positivos.
+Esse equilíbrio pode ser ajustado por meio da variação do \textit{threshold} 
+(limiar) de classificação. Ao alterar o limiar que transforma probabilidades 
+em rótulos (0 ou 1), modificamos diretamente as taxas de verdadeiros positivos
+e falsos positivos.
 
-A métrica que captura essa relação é a curva da ``Característica de Operação 
-do Receptor'' (\textit{Receiver Operating Characteristic}), também chamada de 
-curva ROC. A curva ROC representa a taxa de verdadeiros positivos 
-(\textit{True Positive Rate} ou \textit{recall}) no eixo $y$ em função da taxa 
-de falsos positivos (\textit{False Positive Rate}) no eixo $x$.
+Mas como analisar o comportamento do modelo para todos os valores de 
+\textit{threshold} possíveis sem testá-los individualmente?
 
-Ela mostra como o desempenho do classificador varia à medida que o limiar de 
-decisão é alterado, evidenciando a troca entre identificar corretamente os 
-positivos e evitar falsos alarmes.
+Para isso, utilizamos a curva ROC (\textit{Receiver Operating Characteristic}).
+Essa curva representa graficamente o desempenho do modelo para todos os limiares
+possíveis. No eixo $y$, temos o \textit{recall} (também chamado de 
+\textit{true positive rate}). Definido como:
+
+\begin{equation*}
+    \text{TPR} = \frac{\text{VP}}{\text{VP} + \text{FN}}
+\end{equation*}
+
+No eixo $x$, temos o \textit{false positive rate} (FPR), definido como:
+
+\begin{equation*}
+    \text{FPR} = \frac{\text{FP}}{\text{FP} + \text{VN}}
+\end{equation*}
+
+onde
+
+\begin{equation*}
+    \text{FPR} = 1 - \text{specificity}
+\end{equation*}
+
+Ou seja, a curva ROC mostra explicitamente o \textit{trade-off} entre 
+\textit{recall} e \textit{specificity}, permitindo avaliar o comportamento 
+do modelo ao longo de todos os limiares possíveis sem precisar testá-los 
+manualmente um a um.
 
 \end{document}
