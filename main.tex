@@ -1841,7 +1841,7 @@ conjunto de todos os resultados possíveis. A probabilidade de ocorrência desse
 evento é dada por:
 
 \begin{equation}
-    P(A) = \frac{\text{número de casos favoráveis}}{\text{número total de casos possíveis}}
+    P(A) = \frac{\text{número de casos favoráveis}}{\Omega}
 \end{equation}
 
 No contexto da regressão logística, modelamos a probabilidade condicional de um
@@ -1918,7 +1918,7 @@ quais valores desses parâmetros tornam os dados observados mais plausíveis.
 
 Suponha que temos uma amostra independente
 $x_1, x_2, \dots, x_n$, cuja distribuição depende de $\theta$,
-com função de densidade ou massa de probabilidade $f(x \mid \theta)$.
+com função de densidade $f(x \mid \theta)$.
 A função de verossimilhança é definida como:
 
 \begin{equation}
@@ -1949,7 +1949,7 @@ analíticos e numéricos.
 $P_{\theta}(X_1, X_2, ..., X_n)$ que depende de um conjunto de parâmetros $\theta$.
 O objetivo da $MLE$ é encontrar um conjunto $\hat{\theta}$ que maximiza 
 o valor de $P_{\theta}(X_1, X_2, ..., X_n)$, ou seja, maximiza a probabilidade de 
-observar $(X_1, X_2, ..., X_n)$
+observar $(X_1, X_2, ..., X_n)$.
 
 Nossa função de probabilidade pode ser escrita como
 
@@ -1963,7 +1963,7 @@ Utilizando a definicação de verossimilhança:
     L(\theta) = P_{\theta}(X_1, X_2, ..., X_n)
 \end{equation*}
 
-Então, o que o $MSE$ faz é maximizar o valor de $L(\theta)$. O logaritmo 
+Então, o que o $MLE$ faz é maximizar o valor de $L(\theta)$. O logaritmo 
 é uma função estritamente crescente, assim, maximizar $L(\theta)$ é o mesmo 
 que maximizar $\ell (\theta)$.
 
