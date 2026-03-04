@@ -1938,8 +1938,46 @@ Frequentemente trabalhamos com a log-verossimilhança:
 pois o logaritmo transforma o produto em soma, simplificando os cálculos
 analíticos e numéricos.
 
+\subsection{MLE - estimativa por máxima verossimilhança}
 
+ A estimativa por máxima verossimilhança tenta procurar o modelo 
+ que mais provavelmente produziu os dados que observamos. Na equação
+ de regressão logística, a resposta não é $0$ ou $1$, mas uma estimativa
+ das chances de $\log$ de que a resposta seja $1$.
 
+ Suponha que temos uma amostra $(X_1, X_2, ..., X_n)$ e um modelo de probabilidade 
+$P_{\theta}(X_1, X_2, ..., X_n)$ que depende de um conjunto de parâmetros $\theta$.
+O objetivo da $MLE$ é encontrar um conjunto $\hat{\theta}$ que maximiza 
+o valor de $P_{\theta}(X_1, X_2, ..., X_n)$, ou seja, maximiza a probabilidade de 
+observar $(X_1, X_2, ..., X_n)$
+
+Nossa função de probabilidade pode ser escrita como
+
+\begin{equation}
+    P_{\theta}(X_1, X_2, ..., X_n) = \prod_{i = 1}^{n} f(X_i | \theta)
+\end{equation}
+
+Utilizando a definicação de verossimilhança: 
+
+\begin{equation*}
+    L(\theta) = P_{\theta}(X_1, X_2, ..., X_n)
+\end{equation*}
+
+Então, o que o $MSE$ faz é maximizar o valor de $L(\theta)$. O logaritmo 
+é uma função estritamente crescente, assim, maximizar $L(\theta)$ é o mesmo 
+que maximizar $\ell (\theta)$.
+
+\begin{equation}
+    arg \ \max_{\theta} L(\theta) = arg \max_{\theta} \log(L_\theta) = arg \max_{\theta} \ell (\theta)
+\end{equation}
+
+Nesse processo, usamos como métrica o desvio:
+
+\begin{equation}
+    \text{desvio} = -2 \log(P_{\hat{\theta}} (X_1, X_2, ..., X_n))
+\end{equation}
+
+Aqui, um menor desvio corresponde a um menor ajuste.
 
 
 
