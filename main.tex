@@ -1909,6 +1909,34 @@ Isolando $p(x)$:
     p(x) = \frac{e^{x^{T}\beta}}{1 + e^{x^{T}\beta}}
 \end{equation}
 
+\subsubsection{Verossimilhança}
+
+Ao construir um modelo estatístico, assumimos que os dados observados foram
+gerados por um processo probabilístico que depende de um conjunto de parâmetros
+$\theta$. A função de verossimilhança é o instrumento que nos permite avaliar
+quais valores desses parâmetros tornam os dados observados mais plausíveis.
+
+Suponha que temos uma amostra independente
+$x_1, x_2, \dots, x_n$, cuja distribuição depende de $\theta$,
+com função de densidade ou massa de probabilidade $f(x \mid \theta)$.
+A função de verossimilhança é definida como:
+
+\begin{equation}
+    L(\theta) = \prod_{i=1}^{n} f(x_i \mid \theta)
+\end{equation}
+
+Assim, a verossimilhança mede o quão compatíveis os dados observados são
+com diferentes valores do parâmetro. O valor de $\theta$ que maximiza
+$L(\theta)$ é chamado de estimador de máxima verossimilhança.
+
+Frequentemente trabalhamos com a log-verossimilhança:
+
+\begin{equation}
+    \ell(\theta) = \sum_{i=1}^{n} \log f(x_i \mid \theta),
+\end{equation}
+
+pois o logaritmo transforma o produto em soma, simplificando os cálculos
+analíticos e numéricos.
 
 
 
