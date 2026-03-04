@@ -1979,14 +1979,102 @@ Nesse processo, usamos como métrica o desvio:
 
 Aqui, um menor desvio corresponde a um menor ajuste.
 
+\subsection{Métodos de avaliação de modelos de classificação}
 
+\subsubsection{\textit{Precision}, \textit{recall}, acurácia e \textit{F1-score}}
 
+Vamos imaginar um programa treinado para reconhecer cães em imagens. Ao 
+processar uma imagem que contém 10 gatos e 12 cães, o programa identifica
+8 cães. Desses 8 cães identificados, apenas 5 são cães. 
 
+Assim, temos:
 
+\begin{itemize}
+    \item Verdadeiro positivo (VP): cães classificados corretamente (5)
+    \item Verdadeiro negativo (VN): gatos que foram classificados como não cães (7)
+    \item Falso positivo (FP): gatos que foram classificados como cães (3)
+    \item Falso negativo (FN): cães que foram classificados como não cães (7)
+\end{itemize}
 
+Calcular a (\textit{precision}) do modelo é o mesmo que responder
+a pergunta: ''entre todas as previsões positivas feitas pelo modelo, 
+quantas realmente eram positivas?''. Então:
 
+\begin{equation}
+    \textit{Precision} = \frac{\text{VP}}{\text{VP} + \frac{FP}}
+\end{equation}
 
+Então:
 
+\begin{equation*}
+    \textit{Precision} = \frac{5}{5 + 3} = \frac{5}{8}
+\end{equation*}
 
+\begin{itemize}
+    \item Se a \texit{precision} for alta, significa que quando o modelo diz
+    que algo é positivo, geralmente acerta
+    \item Se a \texit{precision} for baixa, significa que o modelo gera falsos
+    positivos.
+\end{itemize}
+
+Já o \texit{recall} mede a capacidade do modelo de não gerar falsos 
+negativos. Assim, responde a pergunta: ''entre todos os casos realmente 
+positivos, quantos o modelo conseguiu identificar?''. Então:
+
+\begin{equation}
+    \textit{Recall} = \frac{\text{VP}}{\text{VP} + \text{FN}}
+\end{equation}
+
+Então:
+
+\begin{equation*}
+    \textit{Recall} = \frac{5}{5 + 7} = \frac{5}{12}
+\end{equation*}
+
+\begin{itemize}
+    \item Um \textit{recall} alto diz que o modelo encontra a maioria 
+    dos casos positivos. 
+    \item Um \textit{recall} baixo diz que o modelo está retornando 
+    muitos falsos negativos.
+\end{itemize}
+
+A acurárcia é uma métrica que indica a proporção de previsões corretas 
+do modelo, isto é, a quantidade de verdadeiros e falsos positivos frente
+a quatidade total de dados da amostra.
+
+\begin{equation}
+    \text{Acurácia} = \frac{VP + VN}{VP + VP + FN + FP}
+\end{equation}
+
+Então:
+
+\begin{equation*}
+    \text{Acurácia} = \frac{5 + 7}{5 + 7 + 3 + 7} = \frac{12}{22} = \frac{6}{11}
+\end{equation*}
+
+É importante lembrar que a acurácia não é uma boa métrica para dados desbalanceados.
+Se tivermos uma amostra em que temos 95 gatos e apenas 5 cães e nosso modelo (que 
+identifica cães em imagens) disser que todas as imagens são de gatos:
+
+\begin{equation*}
+    \text{Acurácia} = \frac{95}{0 + 95 + 0 +5} = \frac{95}{100} = \text{95\% de acurácia}
+\end{equation*}
+
+mesmo com o modelo não reconhecendo nenhum cão.
+
+Para classes desbalanceadas, é util calcular o \textit{F1-score},
+que é uma média harmônica entre precisão e recall:
+
+\begin{equation}
+    \textit{F1-score} = 2 \times \frac{\textit{Precision} \textit{Recall}}{\textit{Precision} + \textit{Recall}}
+\end{equation}
+
+Assim:
+
+\begin{itemize}
+    \item \textit{Precision} alto e \textit{recall} baixo resultam em \textit{F1-score} baixo;
+    \item \textit{Precision} baixo e \textit{recall} alto resultam em \textit{F1-score} baixo;
+    \item \textit{Precision} alto e \textit{recall} alto resultam em \textit{F1-score} alto.
+\end{itemize}
 
 \end{document}
