@@ -1981,7 +1981,7 @@ Aqui, um menor desvio corresponde a um menor ajuste.
 
 \subsection{Métodos de avaliação de modelos de classificação}
 
-\subsubsection{\textit{Precision}, \textit{recall}, acurácia e \textit{F1-score}}
+\subsubsection{\textit{Precision}, \textit{recall}, \textit{specificity}, acurácia e \textit{F1-score}}
 
 Vamos imaginar um programa treinado para reconhecer cães em imagens. Ao 
 processar uma imagem que contém 10 gatos e 12 cães, o programa identifica
@@ -2038,6 +2038,23 @@ Então:
     muitos falsos negativos.
 \end{itemize}
 
+Além disso, podemos também calcular a \textit{specificity}, que nos diz 
+o quão bom o modelo é em identificar negativos. Para isso:
+
+\begin{equation}
+    \textit{Specificity} = \frac{\text{FP}}{\text{FP} + \text{FN}}
+\end{equation}
+
+No exemplo atual:
+
+\begin{equation*}
+    \textit{Specificity} = \frac{3}{3 + 7} = \frac{3}{10}
+\end{equation*}
+
+\textbf{Obs:} \textit{recall} mede o quão bom um modelo é em identificar 
+uma classe positiva (1) e \textit{specificity} o quão bom o modelo é em 
+identificar se uma classe é negativa (0).
+
 A acurárcia é uma métrica que indica a proporção de previsões corretas 
 do modelo, isto é, a quantidade de verdadeiros e falsos positivos frente
 a quatidade total de dados da amostra.
@@ -2076,5 +2093,25 @@ Assim:
     \item \textit{Precision} baixo e \textit{recall} alto resultam em \textit{F1-score} baixo;
     \item \textit{Precision} alto e \textit{recall} alto resultam em \textit{F1-score} alto.
 \end{itemize}
+
+\textbf{Obs:}
+
+\subsubsection{Curva ROC}
+
+\subsubsection{Curva ROC}
+
+Como vimos, existe uma troca entre \textit{precision} e \textit{recall}. 
+Capturar mais exemplos da classe positiva (1) geralmente implica classificar 
+incorretamente mais exemplos da classe negativa (0) como positivos.
+
+A métrica que captura essa relação é a curva da ``Característica de Operação 
+do Receptor'' (\textit{Receiver Operating Characteristic}), também chamada de 
+curva ROC. A curva ROC representa a taxa de verdadeiros positivos 
+(\textit{True Positive Rate} ou \textit{recall}) no eixo $y$ em função da taxa 
+de falsos positivos (\textit{False Positive Rate}) no eixo $x$.
+
+Ela mostra como o desempenho do classificador varia à medida que o limiar de 
+decisão é alterado, evidenciando a troca entre identificar corretamente os 
+positivos e evitar falsos alarmes.
 
 \end{document}
