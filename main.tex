@@ -2301,13 +2301,121 @@ significativa e reduzindo a capacidade do classificador de capturar estruturas l
 Na prática, se escolher um valor entre 1 e 20, dando preferência para um valor 
 ímpar para evitar empates no voto majoritário.
 
+\subsection{Árvore de classificação e regressão}
 
+Uma árvore de decisão é um modelo preditivo que organiza decisões
+em uma estrutura hierárquica semelhante a uma árvore. A estrutura 
+começa em um nó ininicial chamado \textit{root} e se expande por 
+meio de divisões sucessivas dos dados.
 
+Cada divisão da árvore é baseada em uma condição sobre uma variável
+explicativa. Os ramos representam os resultados possíveis dessa 
+condição e conduzem a novos nós internos ou a nós terminais.
 
+Os nós terminais são chamados de folhas (\textit{leafs}) e representam a 
+predição final do modelo. Em problemas de classificação, cada folha contém 
+um rótulo de classe ou uma distribuição de probabilidades sobre as classes.
+Em problemas de regressão, cada folha contém um valor numérico que normalmente 
+corresponde à média dos valores observados naquela região do espaço de 
+atributos.
 
+A construção da árvore consisteem dividir recursivamente o conjunto de dados
+em subconjuntos cada vez mais homogêneos em relação à variável alvo. Nos deslocamos
+na árvore para a esquerda quando a resposta for ''sim'' e para a direita quando a 
+resposta for ''não''.
 
+\subsubsection{Índice de Gini}
 
+A medida de impureza de Gini pode ser interpretada como a probabilidade de 
+que um elemento escolhido aleatoriamente em um nó seja classificado incorretamente
+caso sua classe seja atribuída aleatoriamente de acordo com a distribuição das 
+classes naquele nó.
 
+A impureza de Gini atinge seu valor mínimo (zero) quando todos os elementos do nó 
+pertencem à mesma classe, ou seja, quando o nó é perfeitamente puro.
+
+Para um conjunto de itens com $J$ classes e frequências relativas $p_i$,
+$i \in {1, 2, ..., J}$, a probabilidade de escolher um item com etiqueta 
+$i$ é $p_i$, e a probabilidade de classificá-lo incorretamente é
+$\sum_{k \diff i} = 1 - p_i$.
+
+A impureza de Gini é calculada por soma de produtos em pares dessas 
+probabilidades para cada rótulo de classe:
+
+\begin{align}
+    I_{G}(p) = \sum_{i = 1}^{J}\left(p_i \sum_{k \diff i}p_k\right) &= \sum_{i = 1}^{J}p_i(1 - p_i) \\
+    &= \sum_{i = 1}^{J}(p_i - p_i^2) \\
+    &= \sum_{i = 1}^{J}p_i - \sum_{i = 1}^{J}p_i^2 \\
+    &= 1- \sum_{i}^{J}p_i^2
+\end{align}
+
+Essa medida varia entre $0$ e $1 - \frac{1}{J}$. Quanto menor for o 
+valor da impureza de Gini, mais homogêneo é o nó.
+
+\subsubsection{Entropia e ganho de informação}
+
+Outra forma de medir a qualidade de uma divisão é por meio da 
+\textit{entropia}, que quantifica o grau de incerteza associado à
+distribuição das classes de um nó.
+
+A entropia de um conjunto $T$ é definida como:
+
+\begin{equation}
+    H(T) = I_{E}(p_1, p_2, ..., p_J) = -\sum_{i = 1}^{J}p_i \log_2 p_i
+\end{equation}
+
+onde $p_i$ representa a proporção de observações pertencentes à 
+classe $i$ no conjunto $T$.
+
+A entropia é máxima quando as classes estão uniformemente distribuídas
+(no caso binário, $p = 0.5$) e mínima quando todas as observações pertencem
+à mesma classe.
+
+Ao dividir um nó utilizando um atributo $a$, o conjunto $T$ é particionado
+em um subconjunto $T_1, T_2, ..., T_K$. A entropia condicional após essa 
+divisão é dada pela média ponderada ads entropias dos nós filhos:
+
+\begin{equation}
+    H(T | a) = \sum_{k = 1}^{K} \frac{|T_k}{|T|} H(T_k)
+\end{equation}
+
+O ganho de informação mede o quanto de incerteza é reduzida após a 
+divisão:
+
+\begin{equation}
+    IG(T, a) = H(T) - H(T | a)
+\end{equation}
+
+Assim, o ganho de informação representa a redução da entropia obtida 
+ao dividir o conjunto de dados usando o atributo $a$.
+
+\begin{equation}
+    IG(T, a) = -\sum_{i = 1}^{J} p_i log_2 p_i - \sum_{i = i}^{J} -Pr(i | a)log_2 Pr(i | a)
+\end{equation}
+
+\subsubsection{Critério de divisão da árvore}
+
+O processo de construção da árvore ocorre de forma recursiva:
+
+\begin{enumerate}
+    \item Começa-se com todos os dados no nó raiz;
+    \item Para cada variável candidata, avaliam-se possíveis pontos de divisão;
+    \item Calcula-se a redução de impureza (por exemplo, via índice de Gini
+    ou ganho de informação);
+    \item Escolhe-se a divisão que maximiza essa redução;
+    \item O processo é repetido para cada nó filho até que um critério de parada
+    seja atingido;
+\end{enumerate}
+
+Para evitar \textit{overfitting}, são incluídos critérios de parada para o
+crescimento da árvore, como:
+
+\begin{enumerate}
+    \item Controle da profundidade máxima da árvore;
+    \item Número mínimo de observações em um nó;
+    \item Ausência de ganho significativo de informação;
+    \item Pureza total do nó.
+\end{enumerate}
 
 
 
