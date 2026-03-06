@@ -2151,6 +2151,8 @@ um modelo completamente aleatório.
 
 \subsection{Estratégias para classificação em dados desbalanceados}
 
+\subsubsection{\textit{Undersampling}}
+
 Quando existe uma grande diferença na frequência das classes (ou seja, 
 quando uma classe é muito mais comum que a outra), dizemos que o conjunto 
 de dados é desbalanceado.
@@ -2166,5 +2168,30 @@ necessárias para treinar um bom modelo?
 Não existe uma regra fechada para determinar esse número. Em geral, quanto mais fácil 
 for distinguir as classes no espaço das variáveis preditoras, menor tende a ser a 
 quantidade de dados necessária para que o modelo aprenda a separá-las adequadamente.
+
+\subsubsection{\textit{Oversampling}}
+
+O problema dessa abordagem é que, quando temos uma quantidade pequena de dados,
+o \textit{undersampling} pode remover observações potencialmente importantes,
+fazendo com que o modelo perca informações valiosas sobre a estrutura dos dados.
+
+Nesses casos, em vez de reduzir a classe dominante, podemos aplicar
+\textit{oversampling} na classe minoritária. Uma forma simples de fazer isso
+é gerar novas observações dessa classe por meio de amostragem com reposição
+(\textit{bootstrap}), aumentando artificialmente o número de exemplos raros
+no conjunto de treinamento.
+
+Outra estratégia equivalente consiste em atribuir pesos diferentes às classes
+durante o treinamento do modelo.
+
+Por exemplo, considere um conjunto de dados sobre inadimplência em empréstimos.
+Suponha que a probabilidade de inadimplência seja $p$. Podemos então atribuir
+peso $1/p$ às observações de inadimplentes e peso $1$ às observações de
+não inadimplentes. Dessa forma, mesmo que existam menos casos de inadimplência,
+o peso total associado a essa classe torna-se comparável ao peso total da
+classe de não inadimplentes.
+
+Assim, o modelo passa a tratar erros na classe rara como mais custosos,
+reduzindo o viés causado pelo desbalanceamento dos dados.
 
 \end{document}
