@@ -2148,4 +2148,23 @@ exemplo positivo do que a um exemplo negativo escolhido aleatoriamente.
 A AUC é útil para comparar curvas ROC. A AUC, como o nome diz, quantifica 
 a área sob a curva quanto maior o valor, melhor. Um valor de AUC 0.5 indica
 um modelo completamente aleatório.
+
+\subsection{Estratégias para classificação em dados desbalanceados}
+
+Quando existe uma grande diferença na frequência das classes (ou seja, 
+quando uma classe é muito mais comum que a outra), dizemos que o conjunto 
+de dados é desbalanceado.
+
+Uma estratégia comum para lidar com esse problema é realizar \textit{undersampling} 
+da classe prevalente. Nesse procedimento, reduzimos a quantidade de observações da 
+classe majoritária, de forma que o conjunto de treinamento fique mais equilibrado 
+entre exemplos da classe 0 e da classe 1.
+
+Entretanto, surge uma questão importante: quantas observações são realmente 
+necessárias para treinar um bom modelo?
+
+Não existe uma regra fechada para determinar esse número. Em geral, quanto mais fácil 
+for distinguir as classes no espaço das variáveis preditoras, menor tende a ser a 
+quantidade de dados necessária para que o modelo aprenda a separá-las adequadamente.
+
 \end{document}
