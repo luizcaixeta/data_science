@@ -2198,10 +2198,108 @@ reduzindo o viés causado pelo desbalanceamento dos dados.
 
 \subsection{K-vizinhos mais próximos}
 
+No algoritmo de k-vizinhos mais próximos (\textit{k-nearest neighbors}, KNN),
+um ponto é classificado de acordo com o voto majoritário entre os seus 
+vizinhos mais próximos no conjunto de treinamento.
 
+Suponha que temos um conjunto de treinamento formado por pares
+$(X_1, Y_1), (X_2, Y_2), ..., (X_n, Y_n)$, onde
+$X_i \in \mathbb{R}^{d}$ representa o vetor de características e
+$Y_i \in \{1,2\}$ representa o rótulo de classe associado.
 
+Podemos interpretar esses dados como sendo provenientes de duas 
+distribuições de probabilidade condicionais $P_1$ e $P_2$, de 
+modo que
 
+\begin{equation}
+    X \mid Y = r \sim P_r, \quad r \in \{1, 2\}
+\end{equation}
 
+Dado um ponto $x \in \mathbb{R}^{d}$ que desejamos classificar, 
+ordenamos os dados de treinamento de acordo com sua distância até $x$.
+Para isso, definimos uma norma $|| \cdot ||$ em $\mathbb{R}^{d}$ e 
+reordenamos as obserções de forma que 
+
+\begin{equation}
+    ||X_{(1)} - x|| \leq ||X_{(2)} - x|| \leq \dots \leq ||X_{(n)} - x||.
+\end{equation}
+
+Assim, $X_{(1)}, X_{(2)}, ..., X_{(k)}$ representam os $k$ vizinhos
+mais próximos de $x$.
+
+Na fase de classificação, o usuário escolhe um valor $k$ que determina 
+quantos vizinhos serão considerados. A classe atribuída a $x$ é então
+determinada pelo voto majoritário entre os rótulos 
+$Y_{(1)}, Y_{(2)}, ..., Y_{(k)}$.
+
+Para identificar quais pontos sao os vizinhos mais próximos,
+precisamos definir uma medida de distância entre as observações.
+
+\subsubsection{Distância euclidiana}
+
+A distância euclidiana entre dois vetores $x_i$ e $x_j$ é definida como
+
+\begin{align}
+    d(x_i, x_j)
+        &= ||x_i - x_j|| \\
+        &= \left[\sum_{k=1}^{m}(x_{ik} - x_{jk})^2\right]^{1/2}.
+\end{align}
+
+Essa medida de distância assume que todas as variáveis possuem 
+a mesma escala e são estatisticamente independentes.
+
+Assim, uma tentativa de corrigir esse problema consiste em 
+padronizar cada variável. Para uma variável $x_k$, definimos 
+o escore padronizado (\textit{z-score} citado anteriormente):
+
+\begin{equation*}
+    Z_K = \frac{x_k - \mu_k}{\sigma_k}
+\end{equation*}
+
+e então, a distância euclidiana passa a ser calcula no 
+espaço das variáveis padronizadas. Entretanto, essa 
+transformação corrige apenas diferenças de escala entre as 
+variáveis, mas não leva em consideração possíveis correlações 
+entre elas.
+
+\subsubsection{Distância de Mahanalobis}
+
+Para levar em consideração tanto a variância quanto as correlações
+existentes entre as variáveis, utilizamos a matriz de covariância 
+$\Sigma$.
+
+Seja $\mu$ o vetor médio das observações e $\Sigma$ a matriz de 
+covariância das variáveis preditoras. A ditância de Mahalanobis 
+entre um ponto $x$ e $\mu$ é definida por:
+
+\begin{equation}
+    d_M(x, \mu) = \sqrt{(x - \mu)^{T}\Sigma^{-1}(x - \mu)}
+\end{equation}
+
+Enquanto o \textit{z-score} normaliza cada variável individualmente,
+a distância de Mahalanobis utiliza a matriz de covariância completa, 
+corrigindo simultaneamente diferenças de escala e correlações entre 
+variáveis.
+
+Geometricamente, enquanto a distância euclidiana mede distâncias em 
+esferas no hiper-espaço $\mathbb{R}^{d}$, a distância de Mahalanobis 
+mede distâncias em elipsóides definidos pela matriz de covariância 
+dos dados.
+
+\subsubsection{Definindo a quantidade $k$}
+
+A escolha do parâmetro $k$ controla o nível de suaviazação do modelo.
+
+Se $k$ for muito pequeno, o classificador tende a apresentar \textit{overfitting},
+ou seja, o modelo se ajusta excessivamente aos dados de treinamento e torna-se 
+muito sensível a ruídos ou outliers.
+
+Se $k$ for muito grande, o modelo pode se tornar excessivamente suave (\textit{oversmoothing}),
+fazendo com que observações de diferentes classes influenciem a decisão de forma 
+significativa e reduzindo a capacidade do classificador de capturar estruturas locais nos dados.
+
+Na prática, se escolher um valor entre 1 e 20, dando preferência para um valor 
+ímpar para evitar empates no voto majoritário.
 
 
 
