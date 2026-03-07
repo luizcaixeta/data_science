@@ -2547,5 +2547,20 @@ das previsões:
 No caso de classificação, a predição final é obtida por meio
 de votação majoritária entre os modelos.
 
+Quando fazemos \textit{bootstrap}, cada amostra é criada com 
+repetição. Isso faz com que nem todas as observações apareçam 
+na amostra. Essas observações que \textbf{não foram usadas para treinar aquele modelo}
+são chamadas de \textit{out-of-the-bag}. Elas servem como um 
+conjunto de validação interno. O processo é:
+
+\begin{enumerate}
+    \item Treine o modelo $m$ usando a amostra \textit{bootstrap};
+    \item Pegue as observações que ficaram fora dessa amostra;
+    \item Use o modelo $m$ para prever essas observações;
+    \item Armaze o erro.
+\end{enumerate}
+
+Depois de treinar todos os modelos, podemos calcular o erro 
+associada ao conjunto \textit{out-of-the-bag}.
 
 \end{document}
