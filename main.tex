@@ -2511,8 +2511,41 @@ Dessa forma, a combinação entre crescimento completo da árvore e posterior
 poda controlada permite obter modelos que equilibram capacidade de ajuste
 e capacidade de generalização.
 
-\section{\textit{Random forest}}
+\section{\textit{Bagging}}
 
+O \textit{bagging} (\textit{bootstrap aggregating}) é uma técnica de 
+\textit{ensemble learning} cujo objetivo é reduzir a variância de modelos
+de \textit{machine learning}. A ideia central consiste em treinar múltiplos
+modelos sobre diferentes subconjuntos dos dados e, porteriormente, combinar
+suas previsões para obter um modelo agregado com melhor capacidade de 
+generalização do que qualquer modelo individual.
+
+Suponha que temos uma variável resposta $Y$ e $P$ variáveis preditoras 
+$X_1, X_2, ..., X_P$, com um total de $N$ observações. O algoritmo de 
+\textit{bagging} pode ser descrito da seguinte forma:
+
+\begin{enumerate}
+    \item Defina $M$, o número de modelos a serem ajustados, e inicialize 
+    o contador de iteração em $m = 1$;
+    \item Gere uma amostra \textit{bootstrap} a partir do conjunto de
+    treinamento, sorteando $N$ observações com reposição. Essa amostra
+    forma um novo conjunto de dados $(X_m, Y_m)$;
+    \item Ajuste um modelo preditivo utilizando $(X_m, Y_m)$, obtendo
+    um estimador $\hat{f}_m(X)$;
+    \item Incremente o contador $m += 1$. Se $m \leq M$,
+    retorne ao passo 2.
+\end{enumerate}
+
+Após o treinamento dos $M$ modelos, as previsões são combinadas
+por meio de agregação. No caso de regressão, utiliza-se a média
+das previsões:
+
+\begin{equation}
+    \hat{f} = \frac{1}{M}\sum_{m = 1}^{M}\hat{f}_{m}(X)
+\end{equation}
+
+No caso de classificação, a predição final é obtida por meio
+de votação majoritária entre os modelos.
 
 
 \end{document}
