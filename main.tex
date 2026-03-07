@@ -2565,4 +2565,65 @@ associada ao conjunto \textit{out-of-the-bag}.
 
 \section{Random forest}
 
+A floresta aleatória (\textit{Random Forest}) baseia-se na aplicação do 
+\textit{bagging} em árvores de decisão. Em árvores de decisão tradicionais, 
+para determinar como dividir uma partição $A$, o algoritmo escolhe uma 
+variável preditora e um ponto de divisão que minimizam um critério de 
+impureza, como o índice de Gini ou a entropia.
+
+
+Nas florestas aleatórias, esse processo é modificado introduzindo uma etapa
+de aleatorização adicional: em cada divisão da árvore, a escolha da variável
+é restrita a um subconjunto aleatório das variáveis preditoras. Essa estratégia
+reduz a correlação entre as árvores da floresta e melhora o desempenho do 
+modelo agregado.
+
+O algoritmo pode ser descrito da seguinte forma:
+
+\begin{enumerate}
+    \item Tire uma subamostra \textit{bootstrap} (com reposição) dos registros
+    do conjunto de dados original;
+
+    \item Para a primeira divisão da árvore, selecione aleatoriamente, sem
+    reposição, um subconjunto de $p < P$ variáveis preditoras;
+
+    \item Para cada variável selecionada 
+    $X_{j(1)}, X_{j(2)}, \dots, X_{j(p)}$, execute o procedimento de divisão:
+
+    \begin{itemize}
+        \item Para cada possível valor de divisão $s_{j(k)}$ da variável 
+        $X_{j(k)}$:
+
+        \begin{itemize}
+            \item Divida os registros da partição $A$ em duas subpartições:
+            uma contendo os registros com $X_{j(k)} < s_{j(k)}$ e outra com
+            os registros em que $X_{j(k)} \ge s_{j(k)}$;
+
+            \item Calcule uma medida de impureza (como o índice de Gini) para
+            avaliar a homogeneidade das classes nas subpartições.
+        \end{itemize}
+
+        \item Selecione o valor $s_{j(k)}$ que produz a maior redução na
+        impureza da partição.
+    \end{itemize}
+
+    \item Entre todas as variáveis consideradas, selecione a variável 
+    $X_{j(k)}$ e o ponto de divisão $s_{j(k)}$ que produzem a maior redução
+    de impureza;
+
+    \item Repita o processo para cada nova partição gerada, retornando ao
+    passo 2, até que a árvore esteja completamente crescida ou até que
+    algum critério de parada seja atingido;
+
+    \item Retorne ao passo 1, gere uma nova subamostra \textit{bootstrap} e
+    construa outra árvore;
+
+    \item Repita o procedimento até obter um conjunto de árvores que formará
+    a floresta.
+\end{enumerate}
+
+O número de variáveis consideradas em cada divisão
+é frequentemente definido como $\sqrt{P}$, em que $P$ é o número total de
+variáveis preditoras.
+
 \end{document}
