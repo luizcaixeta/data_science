@@ -1259,7 +1259,7 @@ A estimativa de mínimos quadrados é:
 Geometricamente:
 
 \begin{itemize}
-    \item As colunas de $X$ são vetores no espaço $\mathcal{R}^{n}$
+    \item As colunas de $X$ são vetores no espaço $\mathbb{R}^{n}$
     \item Esses vetores geram um subespaço vetorial
     \item A regressão consiste em projetar y nesse subespaço
 \end{itemize}
@@ -1647,13 +1647,13 @@ Então, aplicamos a fórmula:
 Para classe Spam:
 
 \begin{equation*}
-    P(\text{Spam})\times P(\text{urgente|Spam}) \times P(\text{promoção|Spam}) = 0.4 \times 0.7 \times 0.8 = 0.224
+    P(\text{Spam})\times P(\text{urgente}|\text{Spam}) \times P(\text{promoção}|\text{Spam}) = 0.4 \times 0.7 \times 0.8 = 0.224
 \end{equation*}
 
 Para classe não spam:
 
 \begin{equation*}
-    P(\text{Não Spam}) \times P(\text{urgente|Não Spam}) \times P(\text{promoção|Não spam}) = 0.6 \times 0.2 \times 0.1 = 0.012
+    P(\text{Não Spam}) \times P(\text{urgente}|\text{Não Spam}) \times P(\text{promoção}|{Não spam}) = 0.6 \times 0.2 \times 0.1 = 0.012
 \end{equation*}
 
 Calculando a probabilidade normalizada:
@@ -1665,8 +1665,8 @@ Calculando a probabilidade normalizada:
 Então:
 
 \begin{align*}
-    &P(\text{Spam | X}) = \frac{0.224}{0.236} \approx 0.949 \\
-    &P(\text{Não Spam | X}) = \frac{0.012}{0.236} \approx 0.051
+    &P(\text{Spam} | \text{X}) = \frac{0.224}{0.236} \approx 0.949 \\
+    &P(\text{Não Spam} | \text{X}) = \frac{0.012}{0.236} \approx 0.051
 \end{align*}
 
 Então, a probabilidade posterior de o e-mail spam é de 94.9\%.
@@ -1715,14 +1715,14 @@ Suponha que recebemos o e-mail:
 \end{center}
 
 \begin{equation*}
-    P(\text{Não spam}) \times P(\text{Lunch | Não spam}) \times P(\text{Money | Não spam})^4 = 0.000002 
+    P(\text{Não spam}) \times P(\text{Lunch} | \text{Não spam}) \times P(\text{Money} | \text{Não spam})^4 = 0.000002 
 \end{equation*}
 
 O que é uma probabilidade muito pequena, afinal dificilmente receberíamos um e-mail de um amigo
 com a palavra "Money" tantas vezes. Agora, calculando a probabilidade de que seja spam:
 
 \begin{equation*}
-    P(\text{Spam}) \times P(\text{Lunch | Spam}) \times P(\text{Money | Spam})^4 = 0
+    P(\text{Spam}) \times P(\text{Lunch} | \text{Spam}) \times P(\text{Money} | \text{Spam})^4 = 0
 \end{equation*}
 
 O valor é zero porque, nos dados de treinamento,
@@ -2001,7 +2001,7 @@ a pergunta: ''entre todas as previsões positivas feitas pelo modelo,
 quantas realmente eram positivas?''. Então:
 
 \begin{equation}
-    \textit{Precision} = \frac{\text{VP}}{\text{VP} + \frac{FP}}
+    \textit{Precision} = \frac{\text{VP}}{\text{VP} + \text{FP}}
 \end{equation}
 
 Então:
@@ -2011,13 +2011,13 @@ Então:
 \end{equation*}
 
 \begin{itemize}
-    \item Se a \texit{precision} for alta, significa que quando o modelo diz
+    \item Se a \textit{precision} for alta, significa que quando o modelo diz
     que algo é positivo, geralmente acerta
-    \item Se a \texit{precision} for baixa, significa que o modelo gera falsos
+    \item Se a \textit{precision} for baixa, significa que o modelo gera falsos
     positivos.
 \end{itemize}
 
-Já o \texit{recall} mede a capacidade do modelo de não gerar falsos 
+Já o \textit{recall} mede a capacidade do modelo de não gerar falsos 
 negativos. Assim, responde a pergunta: ''entre todos os casos realmente 
 positivos, quantos o modelo conseguiu identificar?''. Então:
 
@@ -2096,7 +2096,7 @@ Assim:
 
 \textbf{Obs:}
 
-\subsubsection{Curva ROC}}
+\subsubsection{Curva ROC}
 
 Como visto, existe um \textit{trade-off} entre \textit{recall} (sensibilidade)
 e \textit{specificity} (especificidade). Em algumas situações, queremos que o
@@ -2286,7 +2286,7 @@ esferas no hiper-espaço $\mathbb{R}^{d}$, a distância de Mahalanobis
 mede distâncias em elipsóides definidos pela matriz de covariância 
 dos dados.
 
-\subsubsection{Definindo a quantidade $k$}
+\subsubsection{Definindo a quantidade k}
 
 A escolha do parâmetro $k$ controla o nível de suaviazação do modelo.
 
@@ -2337,13 +2337,13 @@ pertencem à mesma classe, ou seja, quando o nó é perfeitamente puro.
 Para um conjunto de itens com $J$ classes e frequências relativas $p_i$,
 $i \in {1, 2, ..., J}$, a probabilidade de escolher um item com etiqueta 
 $i$ é $p_i$, e a probabilidade de classificá-lo incorretamente é
-$\sum_{k \diff i} = 1 - p_i$.
+$\sum_{k \neq i} = 1 - p_i$.
 
 A impureza de Gini é calculada por soma de produtos em pares dessas 
 probabilidades para cada rótulo de classe:
 
 \begin{align}
-    I_{G}(p) = \sum_{i = 1}^{J}\left(p_i \sum_{k \diff i}p_k\right) &= \sum_{i = 1}^{J}p_i(1 - p_i) \\
+    I_{G}(p) = \sum_{i = 1}^{J}\left(p_i \sum_{k \neq i}p_k\right) &= \sum_{i = 1}^{J}p_i(1 - p_i) \\
     &= \sum_{i = 1}^{J}(p_i - p_i^2) \\
     &= \sum_{i = 1}^{J}p_i - \sum_{i = 1}^{J}p_i^2 \\
     &= 1- \sum_{i}^{J}p_i^2
@@ -2408,16 +2408,107 @@ O processo de construção da árvore ocorre de forma recursiva:
 \end{enumerate}
 
 Para evitar \textit{overfitting}, são incluídos critérios de parada para o
-crescimento da árvore, como:
+crescimento da árvore.
 
-\begin{enumerate}
-    \item Controle da profundidade máxima da árvore;
-    \item Número mínimo de observações em um nó;
-    \item Ausência de ganho significativo de informação;
-    \item Pureza total do nó.
-\end{enumerate}
+\subsubsection{\textit{Cost complexity pruning}}
 
+Árvores de decisão muito profundas tendem a se ajustar excessivamente aos
+dados de treinamento, capturando padrões específicos e ruídos presentes na
+amostra. Para reduzir esse problema, utiliza-se um procedimento chamado \textit{pruning},
+que consiste em simplificar a árvore após seu crescimento.
 
+Um dos métodos mais utilizados é a \textit{cost-complexity pruning}
+(poda por complexidade de custo). Nesse método, considera-se um critério
+que equilibra dois fatores: o erro de ajuste da árvore e a sua complexidade.
 
+Para isso, utilizamos uma função de custo que penalize árvores muito complexas:
+
+\begin{equation}
+    R_{\alpha}(T) = R(T) + \alpha |T|
+\end{equation}
+
+onde:
+
+\begin{itemize}
+    \item $R(T)$ representa o erro da árvore $T$ nos dados de treinamento;
+    \item $|T|$ representa o número de nós terminais (\textit{leafs}) da árvore;
+    \item $\alpha \ge 0$ é um parâmetro que controla o nível de penalização
+    da complexidade.
+\end{itemize}
+
+Quando $\alpha = 0$, não há penalização e a árvore cresce até sua forma máxima. 
+À medida que $\alpha$ aumenta, árvores mais complexas passam a ser penalizadas, 
+favorecendo estruturas menores e mais simples.
+
+Assim, o objetivo do procedimento é encontrar a árvore $T$ que minimiza
+$R_{\alpha}(T)$.
+
+\subsubsection{Weakest link pruning}
+
+A \textit{cost-complexity pruning} é implementada por meio de um algoritmo 
+conhecido como \textit{weakest link pruning}.
+
+O procedimento começa com a árvore totalmente desenvolvida. Em seguida, remove-se 
+iterativamente o ramo cuja remoção provoca o menor aumento no erro de treinamento 
+por folha eliminada.
+
+Mais formalmente, para cada subárvore $T_t$ enraizada em um nó interno $t$,
+define-se o parâmetro crítico:
+
+\begin{equation}
+    \alpha_t = \frac{R(t) - R(T_t)}{|T_t| - 1}
+\end{equation}
+
+onde:
+
+\begin{itemize}
+    \item $R(t)$ é o erro associado ao nó $t$ se ele fosse transformado em folha;
+    \item $R(T_t)$ é o erro da subárvore completa enraizada em $t$;
+    \item $|T_t|$ é o número de folhas dessa subárvore.
+\end{itemize}
+
+O nó com o menor valor de $\alpha_t$ é considerado o \textit{weakest link}
+da árvore e é podado primeiro. Esse processo gera uma sequência aninhada de 
+árvores cada vez menores:
+
+\begin{equation}
+    T_0 \supset T_1 \supset T_2 \supset ... \supset T_K
+\end{equation}
+
+onde $T_0$ é a árvore completa e $T_K$ é a árvore reduzida a um único nó.
+
+\subsubsection{Seleção do parâmetro \texorpdfstring{($\alpha$)}{α}}
+
+O procedimento de poda gera várias árvores candidatas, cada uma associada
+a um valor diferente do parâmetro $\alpha$. O desafio passa então a ser
+selecionar qual dessas árvores apresenta o melhor desempenho preditivo.
+
+Para isso, utiliza-se tipicamente validação cruzada \textit{cross-validation}. 
+O conjunto de dados é dividido em múltiplas partições, e para cada valor de 
+$\alpha$ avalia-se o erro médio de generalização do modelo.
+
+O valor de $\alpha$ escolhido é aquele que minimiza o erro médio obtido
+na validação cruzada.
+
+\subsubsection{Seleção da árvore ótima}
+
+Após estimar o desempenho das diferentes árvores geradas pelo processo de
+poda, seleciona-se a chamada \textit{optimal tree}, que corresponde ao modelo 
+com melhor capacidade de generalização.
+
+Na prática, costuma-se adotar uma das duas estratégias:
+
+\begin{itemize}
+    \item escolher a árvore com menor erro médio de validação cruzada;
+    \item escolher a menor árvore cujo erro esteja dentro de um intervalo
+    aceitável do erro mínimo (regra do \textit{one-standard-error}).
+\end{itemize}
+
+A segunda estratégia é frequentemente preferida, pois tende a produzir
+modelos mais simples e interpretáveis, reduzindo o risco de sobreajuste.
+
+Dessa forma, a combinação entre crescimento completo da árvore e posterior
+poda controlada permite obter modelos que equilibram capacidade de ajuste
+e capacidade de generalização.
 
 \end{document}
