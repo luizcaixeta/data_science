@@ -2815,6 +2815,205 @@ de um número maior de árvores.
 
 \section{\textit{Gradient boosting for classification}}
 
+Para ilustrar o funcionamento do \textit{gradient boosting} em
+problemas de classificação, consideremos um \textit{dataset} com 
+as variáveis \textit{likes popcorn}, \textit{age} e \textit{favorite color},
+cujo objetivo é prever se uma pessoa gosta ou não do filme \textit{Troll 2}.
+
+Assim como nos problemas de regressão, o algoritmo começa com um 
+modelo extremamente simples composto por uma única folha que representa
+todo o conjunto de dados. Essa folha fornece uma predição inicial
+comum de todas as observações. 
+
+No caso de classificação binária, essa predição inicial é dada pelo
+$\log (\text{odds})$, definido como:
+
+\begin{equation*}
+    \log \left(\frac{\text{pessoas que amam o filme}}{\text{pessoas que não amam o filme}}\right)
+\end{equation*}
+
+Como o modelo precisa produzir probabilidade, transformamos 
+o $\log(\text{odds})$ utilizando a função logística:
+
+\begin{equation*}
+    P(x) = \frac{e^{\log(\text{odds})}}{1 + e^{\log(\text{odds})}}
+\end{equation*}
+
+O valor obtido representa a probabilidade inicial de que uma 
+observação pertença à classe $1$ (amar o filme). Para produzir 
+uma classificação final, essa probabilidade é comparada ao 
+\textit{threshold}. Caso $P(x)$ seja maior que o limiar definido, 
+a observação é classificada como $1$; caso contrário, é classificada 
+como $0$.
+
+Para observações da classe $1$ (pessoas que amam o filme):
+
+\begin{equation*}
+    Residual = 1 - \text{probabilidade prevista}.
+\end{equation*}
+
+Para observações da classe $0$ (pessoas que não amam o filme):
+
+\begin{equation*}
+    Residual = 0 - \text{probabilidade prevista}.
+\end{equation*}
+
+Após calcular esses valores, adicionamos uma coluna de resíduos 
+ao \textit{dataset} e treinamos uma árvore de decisão utilizando as 
+variáveis \textit{likes popcorn}, \textit{age} e \textit{favorite color}
+para prever esses resíduos.
+
+Cada folha dessa nova árvore contém um conjunto de observações com 
+resíduos semelhantes. Diferentemente do caso de regressão, não podemos
+simplesmente somar os valores das folhas ao modelo existente, pois 
+estamos trabalhando no espaço do $\log (\text{odds})$. Assim, o valor 
+de saída de cada folha precisa ser ajustado. 
+
+O valor associado a cada folha é calculado como
+
+\begin{equation*}
+    \frac{\sum Residual_i}{\sum (p_i (1 - p_i))}
+\end{equation*}
+
+em que $p_i$ representa a probabilidade para a observação $i$ 
+no modelo atual.
+
+Por fim, atualizamos o modelo somando o valor da prediçaõ anterior 
+com o resultado da nova árvore multiplicado pelo \textit{learning rate}.
+Esse processo é repetido iterativamente, adicionando novas árvores 
+que buscam corrigir os erros do modelo anterior, até que as previsões 
+converjam para valores próximos dos resultados observados.
+
+\subsection{Algoritmo}
+
+Para problemas de classificação binária, o \textit{gradient boosting}
+utiliza a função de verossimilhança na regressão logística como base 
+para definir a função de perda.
+
+A log-verossimilhança para um conjunto de dados com $N$ observações 
+é definida como:
+
+\begin{equation*}
+    \log(\text{likelihood}) = \sum_{i=1}^{N}\left(y_i \log(p_i) + (1-y_i)\log(1-p_i)\right),
+\end{equation*}
+
+onde $p_i$ representa a probabilidade prevista de que a observação 
+$i$ pertença à classe $1$.
+
+Quanto melhor o modelo se ajustar aos dados, maior será o valor 
+da log-verossimilhança. Assim, na regressão logística o objetivo 
+é maximizar esse valor. 
+
+Entretando, em problemas de otimização é mais conveniente trabalhar
+com uma função de perda a ser minimizada. Para isso, multiplicamos 
+a log-verossimilhança por $-1$, obtendo a \textit{log-loss} ou 
+\textit{binary cross-entropy}:
+
+\begin{equation*}
+    \ell(y,p) = -\sum_{i=1}^{N}\left(y_i \log(p_i) + (1-y_i)\log(1-p_i)\right)
+\end{equation*}
+
+Utilizando a relação entre probabilidade e \texit{log-odds}:
+
+\begin{equation}
+    F(x) = \log(\text{odds}) = \log\left(\frac{p}{1-p}\right),
+\end{equation}
+
+e podemos reescrever a função de perda como:
+
+\begin{equation*}
+    \ell(y_i,F(x_i)) = - y_i F(x_i) + \log\left(1 + e^{F(x_i)}\right).
+\end{equation*}
+
+A derivada dessa função de perda em relação a $F(x_i)$ é:
+
+\begin{equation*}
+    \frac{\partial}{\partial F(x_i)}\ell(y_i,F(x_i)) = - y_i + \frac{e^{F(x_i)}}{1 + e^{F(x_i)}} = - y_i + p_i.
+\end{equation*}
+
+E os pseudo-resíduos:
+
+\begin{equation*}
+    r_{im} = y_i - p_i
+\end{equation*}
+
+Para um conjunto de treinamento $\{(x_i, y_i)\}_{i=1}^{n}$, a função
+de perda diferenciável $\ell(y, F(x))$ e um número de iterações $M$:
+
+\begin{enumerate}
+    \item Inicializar o modelo com um valor constante:
+    
+    \begin{equation*}
+        F_0(x) = \arg\min_{\lambda} \sum_{i=1}^{n} \ell(y_i,\lambda)
+    \end{equation*}
+
+    \item Para $m = 1, \dots, M$:
+
+    \begin{enumerate}
+
+    \item Calcular os pseudo-resíduos:
+
+    \begin{equation*}
+        r_{im} = -\left[\frac{\partial\ell(y_i,F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x)}.
+    \end{equation*}
+
+    \item Ajustar um modelo base $h_m(x)$ aos pseudo-resíduos, treinando-o
+    com o conjunto $\{(x_i, r_{im})\}_{i=1}^{n}$.
+
+    \item Calcular o multiplicador $\lambda_m$ resolvendo o seguinte 
+    problema de otimização unidimensional:
+
+    \begin{equation*}
+        \lambda_m =\arg\min_{\lambda}\sum_{i=1}^{n}\ell\big(y_i, F_{m-1}(x_i) + \lambda h_m(x_i)\big)
+    \end{equation*}
+
+    \item Atualizar o modelo:
+
+    \begin{equation*}
+        F_m(x) = F_{m-1}(x) + \lambda_m h_m(x)
+    \end{equation*}
+
+    \end{enumerate}
+
+    \item Saída final: $F_M(x)$
+\end{enumerate}
+
+Para obter uma expressão fechada para $\lambda_m$, podemos
+aproximiar a função de perda por meio de uma expansão de 
+Taylor de segunda ordem em torno de $F_{m - 1}(x_i)$:
+
+\begin{equation*}
+    \ell(y_i,F_{m-1}(x_i)+\lambda) \approx \ell(y_i,F_{m-1}(x_i)) + g_i\lambda + \frac{1}{2}h_i\lambda^2,
+\end{equation*}
+
+onde:
+
+\begin{equation*}
+    g_i = \frac{\partial \ell(y_i,F(x_i))}{\partial F(x_i)}, \qquad h_i = \frac{\partial^2 \ell(y_i,F(x_i))}{\partial F(x_i)^2}.
+\end{equation*}
+
+Minimizando essa aproximação quadrática obtemos:
+
+\begin{equation*}
+    \lambda_i = -\frac{g_i}{h_i}.
+\end{equation*}
+
+No caso específico da regressão logística:
+
+\begin{equation*}
+    g_i = p_i - y_i, \qquad h_i = p_i(1-p_i)
+\end{equation*}
+
+o que leva à expressão
+
+\begin{equation*}
+    \lambda_i = \frac{y_i - p_i}{p_i(1-p_i)}.
+\end{equation*}
+
+Empiricamente, observa-se que o uso de taxas de aprendizagem pequenas
+(como $v < 0.1$) pode melhorar significativamente a capacidade de
+generalização do modelo, embora isso geralmente exija a construção
+de um número maior de árvores.
 
 
 \end{document}
