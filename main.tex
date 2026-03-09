@@ -2626,79 +2626,191 @@ O número de variáveis consideradas em cada divisão
 é frequentemente definido como $\sqrt{P}$, em que $P$ é o número total de
 variáveis preditoras.
 
-\section{\textit{Gradient boost for regression}}
+\section{\textit{Gradient boosting for regression}}
 
-O \textit{gradient boost} inicia com uma única folha, que representa
-uma estimativa inicial para os pesos de todas as amostras. Com base 
-nisso, constrói uma árvore. O próprio \textit{gradient boost} é responsável
-por limitar o seu tamanho. Assim como o adaboost, o \textit{gradient boost}
-constrói outras árvores baseando-se nos erros cometidos pela árvore 
-anterior. Mas ao constrário do adaboost, não constrói somente stumps e 
-sim árvores completas de mesmo tamanho e continua o processo até 
-consturir a quantidade de árvores setada ou até o momento em que acrescentar
-árvores não acresça mais o resultado
+O \textit{gradient boosting} é um método de aprendizado por 
+\textit{ensemble} que constrói um modelo preditivo de forma 
+sequencial, combinando diversos modelos fracos (geralmente 
+árvores de decisão rasas) para formar um modelo final mais 
+preciso.
 
-Se tivermos um consulto de dados com height, favorite color, gender e 
-weight e quisermos desenvolver um modelo de árvore para prever o weight 
-de uma pessoa, iniciamos com uma única folha weight que tem como valor 
-a média de todos os weights do conjunto de dados. Em seguida, construimos 
-uma árvore com base nos erros da primeira. Os erros cometidos pela primeira
-árvore são os valores observados - os valores preditos pela folha.
-Calculando isso para todos, acrescentamos uma coluna a tabela chamada 
-pseudo-residual. Então, uma árvore utilizando height, favorite color 
-e gender é construída para prever os pseudo-residuals. Assim, para prever
-um valor iniciamos pela folha única e utilizamos a árvore construída para
-prever o pseu-residuo, e consideramos como resultado final 
-o avarage weight da primeira folha + o residuo previsto pela árvore. Para 
-evitar outfiting, o \textit{gradient boost} utiliza uma métrica chamada 
-\textit{learning rate} para calibrar a constribuição da nova árvore. O 
-\textit{learning rate} é um valor entre 0 e 1. A ideia central do 
-\textit{gradient boost} é dar pequenos passos na direção certa, então,
-construímos uma nova árvore com base nos erros da primeira. Continuamos 
-assim até que reduzamos ao máximo os pseudo-residuos. Matematicamente, o 
-algoritmo é:
+A ideia central do método é melhorar gradualmente um modelo 
+inicial, adicionando novos modelos que aprendam a corrigir 
+os erros cometidos pelos modelos anteriores. Diferentemente 
+de métodos como \textit{bagging} ou \textit{random forest}, 
+em que árvores são treinadas independentemente, no 
+\textit{gradient boosting} cada nova árvore depende das 
+anteriores.
 
-Para um conjunto de treinamento $\{(x_i, y_i)\}_{i = 1}^{n}$, uma função
-de perda diferenciável $\ell (y, F(x))$ e um número de interações $M$, tal
-que $1 \leq m \geq M$:
+O algoritmo começa com um modelo extremamente simples, 
+normalmente uma única folha que representa uma estimativa 
+constante da variaǘel resposta. Em problemas de regressão 
+com erro quadrático, essa estimativa corresponde à média 
+das observações.
 
-\begin{enumerate}
-    \item Inicialize o modelo com um valor constante:
-    \begin{equation*}
-        F_0(x) = \arg min_{\lambda} \sum_{i = 1}^{n} \ell (y_i, \lambda)
-    \end{equation*}
-    \item Para $m = 1$ até $M$:
-    \begin{enumerate}
-        \item Calcular os pseudo-resíduos:
-        \begin{equation*}
-            r_{im} = - \left[ \frac{\partial \ell (y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x) = F_{m - 1}(x)}, \text{for} \ i = 1, ..., n
-        \end{equation*}
-        \item Ajustar um modelo base fechado sob escalonamento $h_m(x)$ para pseudo-resíduos, 
-        ou seja, trein-alo usando o conjunto de treinamento $\{(x_i, r_{im})\}_{i = 1}^{n}$.
-        \item Calcular multiplicador $\lambda_m$ resolvendo o seguinte probela de 
-        otimização unidimensional:
-        \begin{equation*}
-            \lambda_m = \arg min_{\lambda} \sum_{i = 1}^{n} \ell (y_i, F_{m - 1}(x_i) + \lambda h_m(x_i))
-        \end{equation*}
-        \item Atualizar o modelo
-        \begin{equation*}
-            F_m(x) = F_{m - 1}(x) + \lambda_m h_m(x)
-        \end{equation*}
-    \end{enumerate}
-    \item Saída $F_M(x)$
-\end{enumerate}
+De forma semelhante ao \textit{AdaBoost}, cada nova árvore 
+é treinada com base nos erros das árvores anteriores. 
+Entretanto, diferentemente do \textit{AdaBoost}, o \textit{gradient boosting} 
+não se restringe a \textit{decision stumps}; em vez disso, 
+utiliza árvores de profundidade controlada, geralmente de 
+pequeno porte. O processo continua até que se atinja um número 
+máximo de árvores previamente definido ou até que novas árvores 
+deixem de produzir melhorias significativas no desempenho 
+do modelo.
 
-Uma parte importante do gradient boosting é a regularização por encolhimento,
-que utiliza uma regra de atualizaão modificada:
+Considere um conjunto de dados contendo as variáveis 
+\textit{height}, \texit{favorite color}, \texit{gender} e
+\textit{weight}. O objetivo é construir um modelo que preveja 
+o \textit{weight} de uma pessoa.
+
+A Tabela~\ref{tab:gb_data} apresenta um exemplo simplificado 
+do conjunto de dados.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\hline
+Height & Favorite Color & Gender & Weight \\
+\hline
+170 & Blue & M & 70 \\
+165 & Red & F & 60 \\
+180 & Blue & M & 80 \\
+175 & Green & M & 75 \\
+160 & Red & F & 55 \\
+\hline
+\end{tabular}
+\caption{Exemplo de conjunto de dados para regressão}
+\label{tab:gb_data}
+\end{table}
+
+Inicialmente, o modelo consiste em uma única folha cujo
+valor éa média dos pesos observados no conjunto de dados:
+
+\begin{equation*}
+    F_0(x) = \bar{y} = 68
+\end{equation*}
+
+Assim, a primeira prediçaõ do modelo para todas as observações 
+é $68$. Calculamos então os erros do modelo inicial:
+
+\begin{equation*}
+    r_i = y_i - F_0(x_i)
+\end{equation*}
+
+A Tabela~\ref{tab:gb_residuals} mostra os valores observados,
+as predições iniciais e os resíduos.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\hline
+Weight ($y$) & Predição inicial ($F_0$) & Resíduo ($r$) \\
+\hline
+70 & 68 & 2 \\
+60 & 68 & -8 \\
+80 & 68 & 12 \\
+75 & 68 & 7 \\
+55 & 68 & -13 \\
+\hline
+\end{tabular}
+\caption{Cálculo dos resíduos após o modelo inicial}
+\label{tab:gb_residuals}
+\end{table}
+
+Uma nova árvore de decisão é então treinada para prever os 
+resíduos utilizando as variáveis preditoras (\textit{height},
+\textit{favorite color} e \texit{gender}).
+
+Essa árvore aprende os padrões que explicam os erros do modelo
+inicial. A nova predição passa a ser:
+
+\begin{equation*}
+    F_1(x) = F_0(x) + \lambda_1 h_1(x)
+\end{equation*}
+
+onde $h_1(x)$ representa a árvore ajustada aos resíduos.
+
+Para evitar \textit{overfitting}, utiliza-se um parâmetro chamado
+\textit{learning rate} ($\nu$), que reduz a contribuição de cada árvore:
+
+\begin{equation*}
+    F_1(x) = F_0(x) + \nu \lambda_1 h_1(x)
+\end{equation*}
+
+Valores pequenos de $\nu$ fazem com que o modelo aprenda de forma
+mais gradual, geralmente melhorando a capacidade de generalização.
+
+O processo é então repetido: novos resíduos são calculados,
+novas árvores são treinadas para prever esses resíduos e o modelo
+é atualizado progressivamente.
+
+Matematicamente, o algoritmo de \textit{gradient boosting} objetiva 
+encontrar uma função $F(x)$ que minimize
 
 \begin{equation}
-    F_m(x) = F_{m-1}(x) + v \lamba_m h_m(x), \ 0 < v \geq 1
+    \sum_{i = 1}^{n} \ell(y_i, F(x_i))
 \end{equation}
 
-Empiricamente, descobriu-se que o uso de taxas de aprendizagem pequenas 
-(como $v < 0.1$) produz melhorias drásticas na capacidade de generalização
-dos modelos em relação ao gradient boosting sem redução ($v = 1$).
+Em cada iteração, calcula-se o gradiente da função de perda em 
+relação às predições do modelo. O modelo base (a árvore) é então
+treinado para aproximiar o gradiente negativo dessa função. Assim,
+cada nova árvore representa um passo na direção de maior redução
+do erro.
 
+\subsection{Algoritmo}
 
+Para um conjunto de treinamento $\{(x_i, y_i)\}_{i=1}^{n}$, uma função
+de perda diferenciável $\ell(y, F(x))$ e um número de iterações $M$:
+
+\begin{enumerate}
+    \item Inicializar o modelo com um valor constante:
+    
+    \begin{equation*}
+        F_0(x) = \arg\min_{\lambda} \sum_{i=1}^{n} \ell(y_i,\lambda)
+    \end{equation*}
+
+    \item Para $m = 1, \dots, M$:
+
+    \begin{enumerate}
+
+    \item Calcular os pseudo-resíduos:
+
+    \begin{equation*}
+        r_{im} = -\left[\frac{\partial \ell(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x) = F_{m-1}(x)},\quad i = 1,\dots,n
+    \end{equation*}
+
+    \item Ajustar um modelo base $h_m(x)$ aos pseudo-resíduos, treinando-o
+    com o conjunto $\{(x_i, r_{im})\}_{i=1}^{n}$.
+
+    \item Calcular o multiplicador $\lambda_m$ resolvendo o seguinte 
+    problema de otimização unidimensional:
+
+    \begin{equation*}
+        \lambda_m =\arg\min_{\lambda}\sum_{i=1}^{n}\ell\big(y_i, F_{m-1}(x_i) + \lambda h_m(x_i)\big)
+    \end{equation*}
+
+    \item Atualizar o modelo:
+
+    \begin{equation*}
+        F_m(x) = F_{m-1}(x) + \lambda_m h_m(x)
+    \end{equation*}
+
+    \end{enumerate}
+
+    \item Saída final: $F_M(x)$
+\end{enumerate}
+
+Uma estratégia importante de regularização no \textit{gradient boosting}
+é o \textit{shrinkage} (encolhimento), que introduz o parâmetro de taxa
+de aprendizagem $v$ na regra de atualização:
+
+\begin{equation}
+    F_m(x) = F_{m-1}(x) + v \lambda_m h_m(x), \quad 0 < v \leq 1
+\end{equation}
+
+Empiricamente, observa-se que o uso de taxas de aprendizagem pequenas
+(como $v < 0.1$) pode melhorar significativamente a capacidade de
+generalização do modelo, embora isso geralmente exija a construção
+de um número maior de árvores.
 
 \end{document}
