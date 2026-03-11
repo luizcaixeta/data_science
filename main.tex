@@ -3015,5 +3015,239 @@ Empiricamente, observa-se que o uso de taxas de aprendizagem pequenas
 generalização do modelo, embora isso geralmente exija a construção
 de um número maior de árvores.
 
+\section{\textit{Regularization}}
+
+\subsection{Ridge (L2) Regression}
+
+Considere inicialmente o treinamento de um modelo de regressão linear.
+O objetivo do modelo é encontrar uma reta (ou hiperplano) que se ajuste 
+aos dados minimizando a soma dos quadrados dos resíduos ($SSR$).
+
+QUando o número de observações é pequeno ou quando há muitas variáveis
+explicativas, o modelo pode se ajustar excessivamente aos dados de treino.
+Nesse caso, a reta ajustada passa muito próxima (ou exatamente) pelos 
+pontos observados, capturando inclusive ruídos presentes nos dados.
+Esse fenômeno é conhecido como \textit{overfitting} e está associado 
+a modelos com \textbf{alta variância}.
+
+A ideia da regularização é introduzir uma penalização que limite o 
+tamanho dos coeficientes do modelo. No caso da regressão Ridge, 
+adiciona-se um termo de penalização baseado na norma $L_2$ dos 
+coeficientes. Isso introduz um pequeno viés (\textit{bias}) na estimativa,
+mas reduz a variância do modelo e tende a melhorar sua capacidade de generalização.
+
+Na regressão Ridge, buscamos minizar a seguinte função objetivo:
+
+\begin{equation*}
+    L(\beta) = || Y - X\beta ||^{2} + \lambda || \beta || ^2
+\end{equation*}
+
+onde 
+
+\begin{equation*}
+    || Y - X \beta || ^2 = (Y - X \beta)^{T}(Y - X \beta)
+\end{equation*}
+
+e
+
+\begin{equation*}
+    || \beta || ^2 = \beta^{T}\beta
+\end{equation*}
+
+($\beta$ é a inclinação)
+
+Assim, a função objetivo pode ser escrita como
+
+\begin{equation*}
+    L(\beta) = (Y - X\beta)^T(Y - X\beta) + \lambda \beta^T \beta
+\end{equation*}
+
+Expandindo o primeiro termo:
+
+\begin{equation*}
+    (Y - X\beta)^T(Y - X\beta) = Y^TY - 2\beta^TX^TY + \beta^TX^TX\beta
+\end{equation*}
+
+Logo,
+
+\begin{equation*}
+    L(\beta) = Y^TY - 2\beta^TX^TY + \beta^TX^TX\beta + \lambda \beta^T\beta
+\end{equation*}
+
+Observe que
+
+\begin{equation*}
+    \beta^T\beta = \beta^T I \beta
+\end{equation*}
+
+Portanto,
+
+\begin{equation*}
+    \lambda \beta^T \beta = \lambda \beta^T I \beta
+\end{equation*}
+
+Assim, podemos agrupar os termos quadráticos em $\beta$:
+
+\begin{equation*}
+    \beta^T X^T X \beta + \lambda \beta^T \beta = \beta^T (X^TX + \lambda I)\beta
+\end{equation*}
+
+e a função objetivo torna-se
+
+\begin{equation*}
+    L(\beta) = Y^TY - 2\beta^TX^TY + \beta^T(X^TX + \lambda I)\beta
+\end{equation*}
+
+Derivando em relação a $\beta$:
+
+\begin{equation*}
+    \frac{\partial}{\partial \beta} L(\beta) = -2X^TY + 2(X^TX + \lambda I)\beta
+\end{equation*}
+
+Para minimizar $L(\beta)$, impomos
+
+\begin{equation*}
+    \frac{\partial}{\partial \beta}L(\beta) = 0
+\end{equation*}
+
+Assim,
+
+\begin{equation*}
+    -2X^TY + 2(X^TX + \lambda I)\beta = 0
+\end{equation*}
+
+o que resulta na solução da regressão Ridge:
+
+\begin{equation*}
+    \beta_{\lambda} = (X^TX + \lambda I)^{-1}X^TY
+\end{equation*}
+
+Uma consequência importante dessa modificação é que, se $X^TX$ possui
+autovalores $\lambda_1, \lambda_2, ..., \lambda_p$, então a matriz
+regularizada $X^TX + \lambda I$ possui autovalores
+
+\[
+\lambda_1 + \lambda,\;
+\lambda_2 + \lambda,\;
+\dots,\;
+\lambda_p + \lambda
+\]
+
+Isso torna a matriz mais estável numericamente e evita problemas
+associados a matrizes quase singulares.
+
+Assim, a regressão Ridge:
+
+\begin{itemize}
+\item penaliza coeficientes grandes;
+\item reduz a variância do modelo;
+\item melhora a capacidade de generalização.
+\end{itemize}
+
+O parâmetro de regularização $\lambda$ controla a intensidade da
+penalização. Para selecioná-lo, definimos um conjunto de valores
+candidatos:
+
+\begin{equation*}
+    \lambda \in \{10^{-4}, 10^{-3}, 10^{-2}, 10^{-1}, 0, 1, 10, 100\}
+\end{equation*}
+
+Para cada valor de $\lambda$, treinamos o modelo e avaliamos seu
+desempenho utilizando \textit{k-fold cross-validation}. O valor
+selecionado é aquele que minimiza o erro médio de previsão.
+
+Quando $\lambda = 0$, recuperamos a regressão linear tradicional.
+Valores pequenos de $\lambda$ produzem modelos com baixo viés e maior
+variância, aumentando o risco de \textit{overfitting}. Por outro lado,
+valores grandes de $\lambda$ aumentam o viés, mas reduzem a variância,
+resultando em modelos mais estáveis.
+
+Em Python, podemos realizar essa busca automaticamente utilizando
+\texttt{RidgeCV}:
+
+\begin{pythoncode}
+from sklearn.linear_model import RidgeCV
+
+model = RidgeCV(alphas=[0.01,0.1,1,10,100])
+model.fit(X,y)
+
+model.alpha_
+\end{pythoncode}
+
+\subsection{Ridge (L2) for logistic regression}
+
+Na regressão logística modelamos a probabilidade condicional de uma 
+observação pertencer à classe $1$ como
+
+\begin{equation*}
+    P(Y = 1 \mid X) = \sigma(X\beta),
+\end{equation*}
+
+onde $\sigma(\cdot)$ é a função logística definida por
+
+\begin{equation*}
+    \sigma(z) = \frac{1}{1 + e^{-z}}.
+\end{equation*}
+
+Para um conjunto de dados com $n$ observações, denotamos
+
+\begin{equation*}
+    p_i = \sigma(x_i^{T}\beta),
+\end{equation*}
+
+que representa a probabilidade prevista para a $i$-ésima observação.
+
+Os parâmetros $\beta$ são estimados minimizando a \textit{negative log-likelihood}
+(também chamada de \textit{log loss}):
+
+\begin{equation*}
+    L(\beta) = -\sum_{i = 1}^{n}\left[y_i \log(p_i) + (1 - y_i)\log(1 - p_i)\right]
+\end{equation*}
+
+Para evitar \textit{overfitting} e controlar a magnitude dos coeficientes,
+podemos adicionar uma penalização $L_2$ aos parâmetros. Nesse caso,
+a função objetivo passa a ser
+
+\begin{equation*}
+    L(\beta) =-\sum_{i = 1}^{n}\left[y_i \log(p_i) + (1 - y_i)\log(1 - p_i)\right] + \lambda ||\beta||^2,
+\end{equation*}
+
+onde
+
+\begin{equation*}
+    ||\beta||^2 = \beta^T \beta.
+\end{equation*}
+
+Diferentemente da regressão linear, em que existe uma solução fechada
+para $\beta$ em função de $\lambda$, a regressão logística não possui
+uma solução analítica. Assim, os parâmetros são obtidos por métodos
+iterativos de otimização, como \textit{gradient descent} ou
+\textit{Newton-Raphson}.
+
+Em bibliotecas como o \texttt{scikit-learn}, essa regularização pode ser
+aplicada diretamente:
+
+\begin{pythoncode}
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(
+    penalty="l2",
+    C=1.0
+)
+
+model.fit(X, y)
+\end{pythoncode}
+
+Nesse caso, o parâmetro $C$ corresponde ao inverso da intensidade da
+regularização:
+
+\begin{equation*}
+    C = \frac{1}{\lambda}.
+\end{equation*}
+
+Assim, valores pequenos de $C$ (isto é, $\lambda$ grande) implicam
+regularização forte, enquanto valores grandes de $C$ ($\lambda$ pequeno) 
+correspondem a uma regularização mais fraca.
+
 
 \end{document}
