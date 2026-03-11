@@ -3249,5 +3249,63 @@ Assim, valores pequenos de $C$ (isto é, $\lambda$ grande) implicam
 regularização forte, enquanto valores grandes de $C$ ($\lambda$ pequeno) 
 correspondem a uma regularização mais fraca.
 
+\subection{\textit{Lasso (L1) regression}}
+
+A regressão \textit{Lasso} (\textit{Least Absolute Shrinkage and Selection Operator})
+é uma técnica de regularização utilizada para reduzir o risco de 
+\textit{overfitting} em modelos de regressão. Assim como na regressão
+Ridge, a ideia central é adicionar um termo de penalização à função 
+de perda do método de mínimos quadrados. No entando, enquanto a regressão 
+Ridge utiliza a norma $L_2$, a regressão \textit{Lasso} utiliza a norma
+$L_1$.
+
+\begin{equation}
+    \min_{\beta}; |Y - X\beta|^2 + \lambda \sum_{j=1}^{p} |\beta_j|
+\end{equation}
+
+Nesse problema de otimização, o primeiro termo corresponde ao erro 
+quadrático residual ($SRR$) do modelos, enquanto o segundo termo 
+impõe uma penalização proporcional à soma dos valores absolutos 
+dos coeficientes. O parâmetro de regularização $\lambda \geq 0$ 
+controla a intensidade dessa penalização. 
+
+Quando $\lambda = 0$, o problema se reduz ao estimador de mínimos 
+quadrados ordinários. À medida que $\lambda$ aumenta, os coeficientes 
+são progressivamente reduzidos em magnitude.
+
+Uma característica da regressão \textit{Lasso} é que, devido à 
+natureza da penalização $L_1$, alguns coeficientes podem ser 
+exatamente reduzidos a zero. Como consequência, o \textit{Lasso} 
+realiza simultaneamente duas tarefas:
+
+\begin{itemize}
+    \item Regularização do modelo, reduzindo a variância das estimativas;
+    \item Seleção de variáveis, eliminando preditores irrelevantes.
+\end{itemize}
+
+Essa propriedade contrasta com a regressão Ridge, cuja penalização
+baseada na norma $L_2$ reduz a magnitude dos coeficientes, mas 
+raramente os leva exatamente a zero. 
+
+Na regressão Ridge, o problema de otimização assume a forma 
+
+\begin{equation*}
+    \min_{\beta}; |Y - X\beta|^2 + \lambda \sum_{j=1}^{p} \beta_j^2
+\end{equation*}
+
+Nesse caso, todos os coeficientes são suavamente reduzidos, 
+mas permanecem diferentes de zero. Dessa forma, a regressão 
+Ridge melhora a estabilidade numérica do modelo e reduz a variância 
+das estimativas, porém não realiza a seleção de variáveis.
+
+A escolha entre Ridge e Lasso depende da estrutura dos dados. A regressão
+Ridge tende a apresenta melhor desempenho quando muitas variáveis contribuem 
+de forma moderada para a resposta. Por outro lado, a regressão Lasso 
+é particularmente útil quando se credita que apenas um subconjunto pequeno 
+de variáveis seja realmente relevante para explicar o fenômeno estudado. 
+
+Por essa razão, o Lasso é frequentemente utilizado em problemas de alta 
+dimensionalidade, nos quais o número de variáveis preditoras é grande em r
+elação ao número de observações.
 
 \end{document}
