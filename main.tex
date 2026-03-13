@@ -3308,7 +3308,384 @@ Por essa razão, o Lasso é frequentemente utilizado em problemas de alta
 dimensionalidade, nos quais o número de variáveis preditoras é grande em 
 relação ao número de observações.
 
-\section{XGBoost}
+\section{\textit{XGBoost for regression}}
+
+Cada árvore no \textit{XGBoost} começa com uma única folha, de modo que 
+todos os resíduos são iniialmente atribuídos a esse único nó. A partir 
+desses resíduos, calculamos uma métrica chamada 
+\textit{similarity score}  (ou \textit{quality score}), definida como:
+
+\begin{equation}
+    \text{Similarity score} =
+    \frac{(\text{Sum of residuals})^2}{\text{Number of residuals} + \lambda}
+\end{equation}
+
+onde $\lambda$ é um parâmetro de regularização.
+
+A iedia central é verificar se conseguimos agrupar melhor os resíduos 
+dividingo esse único nó em dois grupos. Para isso, escolhemos um valor 
+(\textit{threshold}) para uma das variáveis explicativas e realizamos 
+um \textit{split}: observações com valores menores que o \textit{threshold}
+são enviadas para a folha da esquerda, enquanto observações com valores maiores
+são enviadas para a folha da direita.
+
+Após realizar a divisão, calculamos novamente o \textit{similariry score} 
+para cada uma das folhas geradas.
+
+Quando os resíduos de um nó possuem sinais ou magnitudes muito diferentes,
+eles tendem a se cancelar ao serem somados, o que reduz o valor do 
+\textit{similariry score}. Por outro lado, quando os resíduos são mais 
+semelhantes, a soma tende a ser maior em magnitude, aumentando o valor 
+do \textit{similarity score}. Dessa forma, valores maiores dessa métrica 
+indicam que o nó conseguiu agrupar resíduos mais homogêneos.
+
+Para quantificar se a divisão realmente melhora o agrupamento dos
+resíduos, calculamos o ganho (\textit{gain}) associado ao \textit{split}:
+
+Cada árvore começa com uma única folha e todos os resíduos
+vão para essa única folha. Agora, calculamos o \textit{quality score}
+ou \textit{similiraty score} para os resíduos. 
+
+\begin{equation}
+    Gain =
+    Similarity_{left} +
+    Similarity_{right} -
+    Similarity_{root}
+\end{equation}
+
+Em seguida, avaliamos diferentes valores de \textit{threshold} para a 
+mesma variável. Para cada candidato a divisão, repetimos o processo: 
+criamos duas folhas, calculamos o \textit{similarity score} de cada uma 
+e avaliamos o valor da função ganho.
+
+Esse procedimento continua até avaliarmos todos os possíveis \textit{thresholds}.
+O \texit{split} escolhido será aquele que produzir o maior valor de gnaho.
+
+Depois de escolhido o melhor \textit{split}, repetimos o processo em cada 
+folha que contém mais de uma observação, consturindo a árvore recursivamente.
+No \texit{XGBoost}, por padrão, a profundidade máxima das árvores costuma 
+ser limitada (por exemplo, a 6 níveis), o que ajuda a controlar o sobreajuste.
+
+Após a construção da árvore, realizamos um processo de \textit{pruning} baseado 
+em um parâmetro $\gamma$. Esse parâmetro define um ganho mínimo necessário 
+para manter um ramo na árvore. Para cada divisão, calculamos:
+
+\begin{equation}
+    Gain - \gamma
+\end{equation}
+
+Se esse valor for negativo, o ramo é removido; caso contrário, o \textit{split}
+é matnido. Esse mecanismo evita a criação de divisões que trazem pouca melhoria
+ao modelo.
+
+O parâmetro $\lamda$ atua como regularização nos nós da árvore. Valores maiores 
+de $\lambda$ reduzem o \textit{similarity score}, penalizando principalmente folhas
+com poucas observações. Assim, folhas contedo apenas uma observação são mais 
+fortemente penalizadas do que folhas com muitos dados.
+
+O \textit{output value} de cada folha é dado por:
+
+\begin{equation}
+    Output\ value =
+    \frac{\text{Sum of residuals}}
+    {\text{Number of residuals} + \lambda}
+\end{equation}
+
+Quando $\lambda > 0$, a contribuição da folha para a previsão final é 
+reduzida, tornando o modelo menos sensíveis para observações individuais.
+
+Por fim, o \textit{XGBoost} atualiza as previsões combinando a previsão
+atual com a contribuição da nova árvore encontrada:
+
+\begin{equation}
+    \hat{y}_{new} =
+    \hat{y}_{old} +
+    \eta \cdot (\text{prediction from tree})
+\end{equation}
+
+onde $\eta$ é o \textit{learning rate}. O valor padrão é $0.3$.
+
+Apósessa atualização, novos resíduos são calculados e uma nova árvore
+é construída para corrigir os erros restantes. Esse processo é repetido 
+iterativamente, de modo que cada nova árvore realiza um pequeno passo 
+na direção de reduzir os resíduos do modelo.
+
+\section{\textit{XGBoost for classification}}
+
+Para problemas de classificação binária, o algoritmo também inicia 
+com uma única folha. Nesse caso, a predição inicial atribui a mesma 
+probabilidade para todas as amostras. Quando não há informação prévia, 
+essa probabilidade inicial é tipicamente $0.5$, o que equivale a uma 
+classificação aleatória.
+
+A partir dessa estimativa inicial, calculamos os resíduos (que, no caso 
+da classificação logística, correspondem ao gradiente da função de perda) e
+ajustamos uma árvore para esses valores. Em seguida, calculamos o 
+\textit{similarity score} de cada nó da árvore. Para classificação, ele é
+definido como:
+
+\begin{equation}
+\text{Similarity score} =
+\frac{\left(\sum_i \text{Residual}_i\right)^2}
+{\sum_i \left[p_i (1 - p_i)\right] + \lambda}
+\end{equation}
+
+onde $p_i$ representa a probabilidade estimada para a observação $i$, e 
+$\lambda$ é um parâmetro de regularização.
+
+Assim como no caso de regresão, começamos com todos os resíduos em um 
+único nó. Em seguida, testamos possíveis \textit{thresholds} para dividir 
+os dados em dois grupos, buscando aumentar o \textit{similariry score}. 
+Para cada divisão candidata, calculamos novamente esse valor nos nós 
+resultantes.
+
+A qualidade da divisão é medida pela função de ganho (\textit{gain}):
+
+\begin{equation}
+\text{Gain} =
+\text{Similarity}_{left} +
+\text{Similarity}_{right} -
+\text{Similarity}_{root}
+\end{equation}
+
+Se o ganho for positivo, a divisão melhora o modelo e pode ser mantida.
+
+Outro conceito importante é o \textit{cover}, que mede a quantidade efetiva
+de informação presente em um nó. ELe é definido como
+
+\begin{equation}
+\text{Cover} = \sum_i p_i (1 - p_i)
+\end{equation}
+
+Esse valor funciona como uma medida do número efetivo de observações no nó.
+O \textit{XGBoost} exige que cada folha tenha um \textit{cover} mínimo; caso
+contrário o nó é removido (\textit{pruned}). O controle desse critério é 
+feito pelo hiperparâmetro \textit{min\_child\_weight}.
+
+O processo de \textit{pruning} segue a mesma lógica utilizada na regressão.
+Definimos um hiperparâmetro $\gamma$ que representa o ganho mínimo necessário 
+para manter uma divisão. Assim, subtraímos $\gamma$ do valor de \textit{gain};
+se o resultado for positivo, a divisão é mantida, caso contrário o nó é 
+eliminado.
+
+Por fim, a predição final do modelo é obtida somando-se as constribuições de 
+todas as árvores. No caso da classificação, cada árvore produz uma correção 
+no valor do \textit{log-odds}. Assim, a atualização da predição pode ser escrita
+como
+
+\begin{equation}
+\text{log-odds}_{new} =
+\text{log-odds}_{previous} +
+\eta \times \text{output}_{tree}
+\end{equation}
+
+onde $\eta$ é o \textit{learning rate}. O valor final de probabilidade é então 
+obtido aplicando a função logística ao \textit{log-odds}.
+
+\subsection{Algoritmo}
+
+Considere um conjunto de treinamento $\{(x_i, y_i)\}_{i=1}^{N}$, uma função de perda
+diferenciável $\ell(y, F(x))$, um número de árvores fracas $M$ e uma taxa de
+aprendizado $\alpha$.
+
+\begin{itemize}
+
+\item Inicializar o modelo com um valor constante:
+
+\begin{equation}
+\hat{f}_{(0)} = \arg \min_{\theta} \sum_{i=1}^{N} \ell(y_i, \theta)
+\end{equation}
+
+Esta etapa define a predição inicial do modelo. Como nenhuma árvore foi
+construída ainda, o modelo retorna o mesmo valor para todas as entradas.
+Assim, escolhemos a constante $\theta$ que minimiza a função de perda
+sobre todo o conjunto de treinamento.
+
+\begin{enumerate}
+
+\item Para $m = 1, \dots, M$:
+
+\begin{enumerate}
+
+\item Calcular os gradientes e hessianos da função de perda avaliados no
+modelo atual:
+
+\begin{align*}
+\hat{g}_i &= 
+\left[\frac{\partial \ell(y_i, f(x_i))}{\partial f(x_i)}\right]_{f(x)=\hat{f}_{(m-1)}(x)} \\
+\\
+\hat{h}_i &=
+\left[\frac{\partial^2 \ell(y_i, f(x_i))}{\partial f(x_i)^2}\right]_{f(x)=\hat{f}_{(m-1)}(x)}
+\end{align*}
+
+Os termos $\hat{g}_i$ e $\hat{h}_i$ representam, respectivamente, o
+gradiente e a segunda derivada da função de perda em relação à predição
+do modelo para a amostra $i$. Esses valores fornecem uma aproximação
+quadrática da função de perda ao redor do modelo atual.
+
+\item Ajustar um aluno base (por exemplo, uma árvore de decisão)
+utilizando os pares
+
+\[
+\left\{x_i,\; -\frac{\hat{g}_i}{\hat{h}_i}\right\}_{i=1}^{N}
+\]
+
+resolvendo o problema de otimização
+
+\begin{equation}
+\hat{\phi}_m =
+\arg \min_{\phi \in \Phi}
+\sum_{i=1}^{N}
+\frac{1}{2}\hat{h}_i
+\left[
+\phi(x_i) + \frac{\hat{g}_i}{\hat{h}_i}
+\right]^2
+\end{equation}
+
+Esse problema corresponde a ajustar uma função $\phi(x)$ que aproxime
+o passo de atualização obtido pela expansão de segunda ordem da
+função de perda.
+
+\item Definir a contribuição da nova árvore:
+
+\begin{equation}
+\hat{f}_m(x) = \alpha \hat{\phi}_m(x)
+\end{equation}
+
+onde $\alpha$ é a taxa de aprendizado que controla o tamanho do passo
+de atualização.
+
+\end{enumerate}
+
+\item Atualizar o modelo:
+
+\begin{equation}
+\hat{f}_{(m)}(x) =
+\hat{f}_{(m-1)}(x) + \hat{f}_m(x)
+\end{equation}
+
+\end{enumerate}
+
+\item Saída final:
+
+\begin{equation}
+\hat{f}(x) =
+\hat{f}_{(M)}(x) =
+\sum_{m=0}^{M} \hat{f}_m(x)
+\end{equation}
+
+\end{itemize}
+
+Para entender como o XGBoost determina os valores preditos em cada folha
+da árvore, considere uma folha $j$ que contém um conjunto de amostras
+$I_j$.
+
+Queremos encontrar o valor constante $w_j$ associado a essa folha que
+minimiza a função de perda aproximada. Utilizando a expansão de segunda
+ordem da função de perda, o problema de otimização local pode ser escrito
+como
+
+\begin{equation}
+\mathcal{L}_j(w_j) =
+\sum_{i \in I_j}
+\left[
+g_i w_j + \frac{1}{2} h_i w_j^2
+\right]
+\end{equation}
+
+onde
+
+\begin{itemize}
+\item $g_i$ é o gradiente da função de perda para a amostra $i$
+\item $h_i$ é o hessiano da função de perda para a amostra $i$
+\end{itemize}
+
+Como $w_j$ é constante para todas as amostras da folha, podemos escrever
+
+\begin{equation}
+\mathcal{L}_j(w_j) =
+\left(\sum_{i \in I_j} g_i\right) w_j +
+\frac{1}{2}
+\left(\sum_{i \in I_j} h_i\right) w_j^2
+\end{equation}
+
+Para encontrar o valor ótimo de $w_j$, derivamos em relação a $w_j$ e
+igualamos a zero:
+
+\begin{equation}
+\frac{\partial \mathcal{L}_j}{\partial w_j}
+=
+\sum_{i \in I_j} g_i
++
+\left(\sum_{i \in I_j} h_i\right) w_j
+= 0
+\end{equation}
+
+Resolvendo para $w_j$ obtemos
+
+\begin{equation}
+w_j =
+-
+\frac{\sum_{i \in I_j} g_i}
+{\sum_{i \in I_j} h_i}
+\end{equation}
+
+Esse valor corresponde à predição atribuída à folha $j$ da árvore.
+
+Substituindo o valor ótimo de $w_j$ na função de perda aproximada,
+obtemos o valor mínimo da perda para aquela folha:
+
+\begin{equation}
+\mathcal{L}_j^* =
+-
+\frac{1}{2}
+\frac
+{\left(\sum_{i \in I_j} g_i\right)^2}
+{\sum_{i \in I_j} h_i}
+\end{equation}
+
+Esse valor é utilizado pelo algoritmo para avaliar a qualidade de uma
+folha da árvore. Na literatura do XGBoost, essa quantidade é conhecida
+como \textit{similarity score}.
+
+Assim, podemos definir
+
+\begin{equation}
+\text{Similarity score} =
+\frac
+{\left(\sum_{i \in I_j} g_i\right)^2}
+{\sum_{i \in I_j} h_i}
+\end{equation}
+
+Intuitivamente, esse valor mede o quanto os gradientes dentro da folha
+estão alinhados. Folhas com valores altos de \textit{similarity score}
+indicam que as amostras apresentam gradientes consistentes e que a
+folha pode reduzir significativamente a função de perda.
+
+Durante a construção da árvore, o algoritmo avalia possíveis divisões
+calculando o ganho (\textit{gain}) obtido ao dividir uma folha em duas
+subfolhas:
+
+\begin{equation}
+\text{Gain} =
+\frac
+{\left(\sum g_L\right)^2}
+{\sum h_L}
++
+\frac
+{\left(\sum g_R\right)^2}
+{\sum h_R}
+-
+\frac
+{\left(\sum g_P\right)^2}
+{\sum h_P}
+\end{equation}
+
+onde $L$, $R$ e $P$ representam respectivamente as folhas esquerda,
+direita e a folha original antes da divisão.
+
+O algoritmo escolhe a divisão que produz o maior ganho na redução
+da função de perda.
 
 
 
